@@ -1,0 +1,33 @@
+# AlphaWealth Environment Variables
+# Copy this file to .env and fill in your API keys
+
+# REQUIRED: OpenAI API Key
+# Get from: https://platform.openai.com/api-keys
+OPENAI_API_KEY=your_openai_api_key_here
+
+# OPTIONAL: Financial Datasets AI
+# Get from: https://financialdatasets.ai/
+# If not provided, system will use mock data
+FINANCIAL_DATASETS_API_KEY=your_financial_datasets_api_key_here
+
+# OPTIONAL: Exa AI for semantic search
+# Get from: https://exa.ai/
+# If not provided, system will use mock data
+EXA_API_KEY=your_exa_api_key_here
+
+# Server Configuration
+PORT=8788
+ENVIRONMENT=development
+
+# CORS Origins (comma-separated)
+CORS_ORIGINS=http://localhost:8787,http://localhost:3000
+
+# JWT Secret (change this in production)
+JWT_SECRET_KEY=your_super_secret_jwt_key_change_this_in_production
+
+# Database (for future phases)
+DATABASE_URL=postgresql://user:password@localhost:5432/alphawealth
+
+# Redis (for caching, future phases)
+REDIS_URL=redis://localhost:6379
+

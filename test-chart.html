@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chart Test</title>
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background: #0d1117;
+            color: white;
+        }
+        #chart {
+            width: 800px;
+            height: 400px;
+            margin: 20px auto;
+            background: #1e222d;
+        }
+        #status {
+            text-align: center;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="status">Loading chart...</div>
+    <div id="chart"></div>
+
+    <script>
+        console.log('Script starting...');
+        
+        // Check if library loaded
+        if (typeof LightweightCharts === 'undefined') {
+            document.getElementById('status').innerHTML = '❌ TradingView library NOT loaded';
+            console.error('Library not available');
+        } else {
+            document.getElementById('status').innerHTML = '✅ TradingView library loaded';
+            console.log('Library loaded successfully');
+            
+            // Test data
+            const testData = [
+                { time: '2024-09-01', open: 100, high: 110, low: 95, close: 105 },
+                { time: '2024-09-02', open: 105, high: 115, low: 100, close: 112 },
+                { time: '2024-09-03', open: 112, high: 120, low: 108, close: 118 },
+                { time: '2024-09-04', open: 118, high: 125, low: 115, close: 122 },
+                { time: '2024-09-05', open: 122, high: 130, low: 120, close: 128 }
+            ];
+            
+            try {
+                const chart = LightweightCharts.createChart(document.getElementById('chart'), {
+                    width: 800,
+                    height: 400,
+                    layout: {
+                        background: { color: '#1e222d' },
+                        textColor: '#d1d4dc',
+                    },
+                });
+                
+                const candlestickSeries = chart.addCandlestickSeries({
+                    upColor: '#26a69a',
+                    downColor: '#ef5350',
+                    borderVisible: false,
+                    wickUpColor: '#26a69a',
+                    wickDownColor: '#ef5350',
+                });
+                
+                candlestickSeries.setData(testData);
+                
+                document.getElementById('status').innerHTML = '✅ Chart rendered successfully!';
+                console.log('Chart created successfully');
+            } catch (e) {
+                document.getElementById('status').innerHTML = '❌ Error creating chart: ' + e.message;
+                console.error('Chart error:', e);
+            }
+        }
+    </script>
+</body>
+</html>
+

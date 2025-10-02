@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Pokefin — Chat</title>
+    <meta name="description" content="Pokefin MVP chat — conversational financial companion (prototype)" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-emoji">🟦</span>
+          <span class="brand-name">Pokefin</span>
+        </div>
+        <div class="actions">
+          <button id="resetBtn" title="Reset conversation">Reset</button>
+        </div>
+      </header>
+
+      <main id="chat" class="chat" aria-live="polite" aria-label="Conversation">
+        <!-- Messages will render here -->
+      </main>
+
+      <footer class="composer">
+        <label class="sr-only" for="msg">Message</label>
+        <textarea id="msg" rows="1" placeholder="Message Pokefin" autocomplete="off"></textarea>
+        <button id="send" class="send" aria-label="Send message">Send</button>
+      </footer>
+
+      <div class="disclaimer">
+        For education only — not financial advice.
+      </div>
+    </div>
+
+    <script src="js/charts.js"></script>
+    <script type="module" src="js/app.js"></script>
+  </body>
+  </html>
+
