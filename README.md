@@ -1,388 +1,297 @@
-# 🚀 AlphaWealth - AI Financial Wealth Manager
+# ⊥ Orthogonal
 
-**The World's First AI-Powered Investment Advisor with Bull vs Bear Debate System**
+**Institutional-Grade AI Research Terminal**
 
-> "If we recommend buying and it goes up, or selling and it goes down → we have them for life."
+Multi-agent AI system that thinks like a hedge fund research team. Deep equity analysis. Bloomberg-level data. In seconds.
 
 ---
 
-## ⚡ **Quick Start**
+## 🎯 What Is Orthogonal?
+
+Orthogonal is an AI-powered equity research platform that uses a multi-agent debate system to analyze stocks. Unlike single-LLM tools, Orthogonal deploys specialized AI analysts that debate every investment decision:
+
+- **Fundamental Analyst** → Financial statements, valuations, growth metrics
+- **Technical Analyst** → Price action, volume, support/resistance
+- **Sentiment Analyst** → Social media, news, Reddit, Twitter
+- **Risk Analyst** → Valuation risk, volatility, market conditions
+
+Every recommendation comes with a conviction score (1-10), full debate transcript, and transparent sourcing.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
 
 ```bash
-cd /Users/vedant/Desktop/pokefin
-./start-full-system.sh
+# Backend (Python)
+cd python_backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+
+# Frontend (Node.js)
+cd ../server
+npm install
 ```
 
-Open **http://localhost:8787** and start asking:
-- "Should I buy NVDA?"
-- "What's the Reddit sentiment on TSLA?"
-- "Compare NVDA vs AMD"
-- "What are hedge funds buying?"
+### 2. Configure API Keys
+
+Create `python_backend/.env`:
+
+```env
+# Required
+OPENAI_API_KEY=sk-...
+FDS_API_KEY=...  # Financial Datasets AI
+EXA_API_KEY=...  # Exa AI
+
+# Optional
+REDDIT_CLIENT_ID=...
+REDDIT_CLIENT_SECRET=...
+REDDIT_USER_AGENT=...
+```
+
+### 3. Launch
+
+```bash
+# Start backend
+cd python_backend
+source venv/bin/activate
+uvicorn main:app --host 0.0.0.0 --port 8788
+
+# Start frontend (new terminal)
+cd server
+node index.js
+```
+
+Then visit: **http://localhost:8787**
 
 ---
 
-## 🎯 **What Makes Us Different**
+## 💼 Features
 
-### **Multi-Source Intelligence**
-We don't just look at price and fundamentals. We analyze:
-- 📱 Reddit sentiment (r/wallstreetbets, r/stocks)
-- 🐦 Twitter/FinTwit influencers
-- 🏦 Institutional 13F filings (hedge fund activity)
-- 💎 Unusual options flow (smart money bets)
-- 📊 Financial metrics & DCF valuation
-- 📰 Company news & analyst ratings
-- 👥 Insider trading activity
+### Multi-Agent Debate System
+Every stock is analyzed by specialized AI agents that debate the investment case. Bull vs Bear. Just like a real hedge fund research meeting.
 
-### **Bull vs Bear Debate System** (KILLER FEATURE!)
-```
-User: "Should I buy NVDA?"
+### Bloomberg-Level Data
+- Real-time prices & fundamentals (Financial Datasets AI)
+- SEC filings, earnings materials, institutional positions (Exa AI)
+- Social sentiment (Reddit, Twitter)
+- Insider trades, 13F filings, options flow
 
-AlphaWealth:
-1. Gathers signals from 8+ sources (parallel)
-2. Bull Agent builds strongest buy case
-3. Bear Agent builds strongest avoid case
-4. AI agents debate for 2-3 rounds
-5. Impartial judge determines winner
-6. Conviction score calculated (1-10)
-7. High-quality recommendation generated
+### Research Whiteboard
+Bloomberg terminal-style interface with:
+- Full financial statements
+- Peer comparison tables
+- Complete debate transcript
+- Risk assessment
+- Direct links to SEC filings
 
-Response:
-🎯 Recommendation: BUY
-Conviction: 9/10 ⭐⭐⭐⭐⭐⭐⭐⭐⭐
-Price: $875 → Target $1,100 (+26%)
-[Full analysis with bull/bear cases, signals, and evidence]
-```
-
-### **Simple for Users, Deep for Us**
-- **What user sees**: One-line recommendation with conviction score
-- **What we do**: Multi-source research, structured debates, risk assessment
-- **What's available**: Click for full "whiteboard" with all research details
+### Transparent Sourcing
+Every data point is cited. Direct links to:
+- SEC filings (10-K, 10-Q, 8-K, proxies)
+- Institutional positions (WhaleWisdom, 13F)
+- Earnings materials
+- News articles
 
 ---
 
-## 🛠️ **Features**
+## 🎨 Design Philosophy
 
-### **Core Analysis (26 Tools)**
-- ✅ Real-time stock prices with charts
-- ✅ Financial metrics (P/E, margins, growth)
-- ✅ DCF valuation calculator
-- ✅ Technical indicators (MA, RSI, MACD)
-- ✅ Company news & sentiment
-- ✅ Insider trades tracker
-- ✅ Earnings calendar & history
-- ✅ Analyst ratings aggregation
+**"Independent. Contrarian. Orthogonal."**
 
-### **Social & Sentiment Intelligence** (NEW!)
-- ✅ Reddit sentiment scanner (r/wallstreetbets, r/stocks)
-- ✅ Twitter/FinTwit sentiment tracker
-- ✅ 13F institutional change monitoring
-- ✅ Unusual options activity detector
-
-### **Market Intelligence**
-- ✅ Market overview (indices, sectors)
-- ✅ Top gainers/losers/active stocks
-- ✅ Custom stock screeners
-- ✅ Sector performance heatmaps
-
-### **Investment Recommendations** (KILLER FEATURE!)
-- ✅ Bull vs Bear debate system
-- ✅ Conviction scoring (1-10)
-- ✅ Multi-source validation
-- ✅ Risk assessment
-- ✅ Price targets with justification
-- ✅ Three modes: Quick (30s), Standard (60s), Deep (3min)
-
-### **Visualization**
-- ✅ TradingView price charts (550px, beautiful)
-- ✅ Multi-stock comparison charts
-- ✅ Sector heatmaps
-- ✅ Clean, minimalist UI
+- **Minimalist** — Apple-inspired design. Black, white, silver, ocean blue.
+- **Professional** — Bloomberg terminal aesthetic. Data-first.
+- **Transparent** — Show your work. Cite every source.
+- **Honest** — Show both bull and bear cases. Acknowledge uncertainty.
 
 ---
 
-## 🏗️ **Architecture**
+## 📊 Example Usage
 
-### **Frontend (Node.js - Port 8787)**
-- Clean iMessage-style chat UI
-- Beautiful gradients & shadows
-- Auto-hyperlinked URLs
-- Smooth animations
-- Chart embedding
+```
+You: "Should I buy Tesla?"
 
-### **Backend (Python FastAPI - Port 8788)**
-```
-User Query
-    ↓
-Interaction Agent (GPT-4o orchestrator)
-    ↓
-Tool Selection (OpenAI function calling)
-    ↓
-Parallel Tool Execution
-    ├── Signal Gathering (Reddit, Twitter, 13F, etc.)
-    ├── Specialist Analysis (Fundamental, Technical, Sentiment)
-    └── Debate System (Bull vs Bear)
-    ↓
-Conviction Scoring (1-10)
-    ↓
-Recommendation Generation
-    ↓
-Beautiful Response with Charts
-```
+Orthogonal: 
+🎯 Recommendation: SELL
+Conviction: 2/10 ⭐⭐
+Price: $436 → $370.60 (-15%)
 
-### **Data Sources**
-- **Financial Datasets AI**: Real-time prices, financials, earnings
-- **Exa AI**: Semantic search (Reddit, Twitter, SEC filings, news)
-- **TradingView**: Interactive charts
-- **Aggregators**: WhaleWisdom, Fintel, Dataroma (13F data)
+💡 Key Thesis:
+The increasing competition from major automakers and the potential 
+for a saturated EV market could significantly threaten Tesla's market 
+share and profit margins.
 
----
+📊 Market Data:
+• P/E Ratio: 302.78x (EXTREME valuation risk)
+• Profit Margin: 5.21%
+• Market Cap: $1.53T
 
-## 📊 **Example Queries**
+📱 Social Sentiment:
+• Reddit: BEARISH (33% bullish)
+• Twitter: VERY BULLISH (75% bullish)
 
-### Stock Analysis
-```
-"What's Nvidia's stock price?"
-"Show me AAPL financials"
-"Compare NVDA vs AMD"
-"Technical analysis for TSLA"
-```
+⚖️ Bull Case: Strong brand loyalty, innovation leadership...
+⚠️ Bear Case: Extreme valuation, intensifying competition...
 
-### Social Sentiment
-```
-"What's the Reddit sentiment on GME?"
-"Check Twitter buzz for TSLA"
-"What are hedge funds buying?"
-"Any unusual options activity on AAPL?"
-```
-
-### Investment Advice (Runs Full Debate)
-```
-"Should I buy NVDA?"
-"Is TSLA a good buy?"
-"Give me your best stock pick"
-"Deep research on AMD"
-```
-
-### Market Intelligence
-```
-"What's the mood in markets?"
-"Top gainers today"
-"Screen for value stocks under $50"
-"Show me tech sector performance"
+📋 [View Full Research Whiteboard →]
 ```
 
 ---
 
-## 🎯 **How It Works**
+## 🧠 Architecture
 
-### Basic Query (2-5 seconds)
+### Backend (Python + FastAPI)
+- **InteractionAgent** (GPT-4o) → Orchestrator, understands user queries
+- **Specialist Agents** → Fundamental, Technical, Sentiment, Risk
+- **ResearchCoordinator** → Deep research with debate system
+- **DebateCoordinator** → Bull vs Bear multi-round debates
+- **Tool Executors** → 10+ data sources, parallel execution
+
+### Frontend (Node.js + Vanilla JS)
+- **Landing Page** → Professional, Apple-inspired
+- **Chat Terminal** → Bloomberg-style research interface
+- **Research Whiteboard** → Comprehensive analysis view
+- **TradingView Integration** → Interactive charts
+
+### Data Sources
+1. Financial Datasets AI → Real-time prices, financials
+2. Exa AI → SEC filings, institutional positions, earnings
+3. Reddit API → r/wallstreetbets, r/stocks sentiment
+4. Twitter API → FinTwit sentiment
+5. Internal calculations → P/E, margins, growth rates
+
+---
+
+## 🔧 Tech Stack
+
+**Backend:**
+- Python 3.12
+- FastAPI (async web framework)
+- OpenAI GPT-4o & o1-preview (multi-agent system)
+- Financial Datasets AI (market data)
+- Exa AI (semantic search, SEC filings)
+
+**Frontend:**
+- Node.js + Express
+- Vanilla JavaScript (no framework bloat)
+- TradingView Widgets
+- CSS Variables (Apple/Bloomberg aesthetic)
+
+**Infrastructure:**
+- In-memory research storage (migrating to Supabase)
+- Real-time WebSocket updates
+- Parallel tool execution
+
+---
+
+## 📚 Project Structure
+
 ```
-User: "What's NVDA's price?"
-
-AlphaWealth:
-1. Calls get_stock_price("NVDA")
-2. Generates TradingView chart
-3. Formats response with context
-
-Response: "NVDA is trading at $875, up $12 (+1.4%) today.
-The stock's been on a nice run this week. [Chart]"
-```
-
-### Deep Research (30-60 seconds)
-```
-User: "Should I buy NVDA?"
-
-AlphaWealth:
-1. Gathers comprehensive signals:
-   - Reddit sentiment: VERY BULLISH (85%)
-   - Twitter sentiment: BULLISH (72%)
-   - 13F filings: STRONG BUYING (5 new positions)
-   - Unusual activity: Call buying detected
-   - Financial metrics: Strong fundamentals
-   - News: Positive earnings beat
-
-2. Specialist Analysis:
-   - Fundamental score: 8/10
-   - Technical score: 7/10
-   - Sentiment score: 9/10
-
-3. Bull vs Bear Debate:
-   - Bull: "AI chip dominance + institutional validation"
-   - Bear: "Valuation stretched, China risks"
-   - Round 1-2 debates with rebuttals
-   - Judge determines winner: Bull (87% confidence)
-
-4. Conviction Calculation:
-   - Base: 8.7/10 (from debate confidence)
-   - Signal boost: +1.5 (strong social + 13F buying)
-   - Final: 9/10
-
-5. Generate Recommendation:
-   - Action: BUY
-   - Conviction: 9/10 ⭐⭐⭐⭐⭐⭐⭐⭐⭐
-   - Target: $1,100 (+26%)
-   - Clear thesis with evidence
+orthogonal/
+├── index.html              # Landing page
+├── chat.html               # Research terminal
+├── whiteboard.html         # Bloomberg-style research view
+├── styles.css              # Professional Apple/Bloomberg theme
+├── js/
+│   ├── app.js              # Chat logic
+│   └── charts.js           # TradingView integration
+├── python_backend/
+│   ├── main.py             # FastAPI app
+│   ├── agents/
+│   │   ├── interaction_agent.py      # GPT-4o orchestrator
+│   │   ├── debate_coordinator.py     # Bull vs Bear system
+│   │   ├── research_coordinator.py   # Deep research
+│   │   └── tools/
+│   │       ├── implementations.py    # 10+ tools
+│   │       └── registry.py           # Tool schemas
+│   └── services/
+│       ├── financial_datasets_client.py
+│       └── exa_client.py
+└── server/
+    └── index.js            # Node.js frontend server
 ```
 
 ---
 
-## 🚀 **Current Status**
+## 🎯 Roadmap
 
-### ✅ MVP Complete (Feature-Complete!)
-- [x] 26 analysis tools
-- [x] Multi-agent AI system
-- [x] Bull vs Bear debate system
-- [x] Conviction scoring (1-10)
-- [x] Social sentiment tracking
-- [x] Institutional activity monitoring
-- [x] Beautiful UI
-- [x] Real-time data
-- [x] Chart embedding
-- [x] Multi-source validation
+### ✅ Phase 1: Core Platform (DONE)
+- Multi-agent debate system
+- 10 data sources integrated
+- Research whiteboard
+- Professional UI redesign
 
-### 🔄 Next: Production Ready (1 Week)
-- [ ] User authentication (Supabase)
-- [ ] Database (Supabase Postgres)
-- [ ] Rate limiting
-- [ ] Performance tracking
-- [ ] Usage limits (free/pro tiers)
-- [ ] Email notifications
+### 🔄 Phase 2: Data & Charts (IN PROGRESS)
+- [ ] Historical charts (5Y price/revenue/earnings)
+- [ ] Full balance sheet & cash flow statements
+- [ ] Earnings call transcript highlights
 
-### 🔜 Future
+### 📋 Phase 3: Authentication & User Management
+- [ ] Supabase integration
+- [ ] User accounts & saved research
+- [ ] Research history
 - [ ] Portfolio tracking
-- [ ] Price alerts
-- [ ] Mobile app
-- [ ] Payment integration (Stripe)
-- [ ] API access
-- [ ] Whiteboard detailed view
-- [ ] PDF reports
+
+### 🚀 Phase 4: Advanced Features
+- [ ] Real-time alerts
+- [ ] Custom watchlists
+- [ ] Earnings call summaries with key quotes
+- [ ] Automated research updates
 
 ---
 
-## 💰 **Monetization (Ready to Launch)**
+## ⚠️ Important Notes
 
-### Free Tier
-- 3 deep research per day
-- 50 basic queries per day
-- Basic charts
-- 7-day history
+### This Is NOT Financial Advice
+Orthogonal is a research tool for educational purposes. We provide analysis and insights, but you should:
+- Do your own due diligence
+- Consult a licensed financial advisor
+- Never invest money you can't afford to lose
+- Understand that past performance ≠ future results
 
-### Pro Tier ($49/month)
-- **Unlimited** deep research
-- **Unlimited** queries
-- Advanced charts
-- Full history
-- Email alerts
-- API access
+### Data Accuracy
+We use institutional-grade data sources (Financial Datasets AI, Exa AI), but:
+- Data may have delays or errors
+- APIs can fail or return incomplete data
+- Always verify critical information
 
-### Elite Tier ($199/month)
-- Everything in Pro
-- Custom research requests
-- 1-on-1 AI advisor
-- Tax optimization
-- Portfolio management
+### LLM Limitations
+Our AI agents are sophisticated but not perfect:
+- Can make reasoning errors
+- May miss important context
+- Should be used as a research assistant, not oracle
 
 ---
 
-## 📈 **Path to $1 Trillion**
+## 🤝 Contributing
 
-### Month 1-3: MVP + Beta (NOW)
-- ✅ Core features built
-- 🔄 Add auth & database
-- 🔜 Beta launch (100 users)
+Interested in contributing? We're looking for:
+- Data source integrations
+- UI/UX improvements
+- Bug fixes & performance optimization
+- Documentation
 
-### Month 4-6: Growth
-- 1,000 users
-- Iterate on feedback
-- Improve recommendation accuracy
-- Add portfolio features
-
-### Month 7-12: Scale
-- 10,000 users
-- $500K MRR
-- Series A funding
-- Hire team
-
-### Year 2: $1B Valuation
-- 100,000 users
-- $5M MRR = $60M ARR
-- 15-20x multiple = $1B
-- Expand features
-
-### Year 3-10: $1T Company
-- Global expansion
-- B2B white-label
-- AI hedge fund
-- Embedded finance
-- Platform play
-
-**We're on track!** 🚀
+Email: hello@orthogonal.ai
 
 ---
 
-## 🛡️ **Disclaimer**
+## 📄 License
 
-AlphaWealth is for educational and informational purposes only. This is not financial advice. All investments carry risk. Past performance does not guarantee future results. Always do your own research and consult with a licensed financial advisor before making investment decisions.
-
----
-
-## 📝 **Technical Details**
-
-### Prerequisites
-- Node.js 18+
-- Python 3.10+
-- OpenAI API Key (required)
-- Financial Datasets AI API Key (required)
-- Exa AI API Key (required)
-
-### Installation
-```bash
-# 1. Clone/navigate to project
-cd /Users/vedant/Desktop/pokefin
-
-# 2. Set up environment
-cp python_backend/.env.example python_backend/.env
-# Edit .env with your API keys
-
-# 3. Start system
-./start-full-system.sh
-
-# 4. Open in browser
-# http://localhost:8787
-```
-
-### API Keys
-Add these to `python_backend/.env`:
-```bash
-OPENAI_API_KEY=your_key_here
-FDS_API_KEY=your_key_here
-EXA_API_KEY=your_key_here
-```
+MIT License - See LICENSE file for details
 
 ---
 
-## 📚 **Documentation**
+## 💙 Made with Love in Berkeley, CA
 
-- `TRILLION_DOLLAR_ROADMAP.md` - Complete 10-year plan
-- `SIGNAL_DISCOVERY_COMPLETE.md` - Signal gathering system
-- `DEBATE_SYSTEM_COMPLETE.md` - Bull vs Bear debate docs
-- `MVP_READY_TO_SHIP.md` - Current status & launch plan
-- `START_HERE.md` - Quick start guide
-
----
-
-## 🎯 **Contributing**
-
-This is currently a closed beta. Contributions will be accepted after public launch.
+Built by a team that believes:
+- Retail investors deserve institutional-grade tools
+- AI should augment human judgment, not replace it
+- Transparency beats black boxes
+- Good design matters
 
 ---
 
-## 🚀 **Let's Build a $1T Company!**
+**⊥ Orthogonal** — Independent. Contrarian. Orthogonal.
 
-Built with ❤️ using OpenAI, Python, Node.js, and a lot of caffeine.
-
-**Status**: MVP Complete ✅  
-**Next**: Supabase integration for auth & database  
-**Goal**: Ship to 100 beta users this month  
-
-**LFG! 🚀🚀🚀**
+Visit: [orthogonal.ai](https://orthogonal.ai)

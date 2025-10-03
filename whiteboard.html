@@ -3,275 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AlphaWealth Research Whiteboard</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
-      color: #e0e0e0;
-      line-height: 1.6;
-    }
-    
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 40px 20px;
-    }
-    
-    .header {
-      margin-bottom: 40px;
-      padding-bottom: 30px;
-      border-bottom: 2px solid #2d2d44;
-    }
-    
-    .header h1 {
-      font-size: 48px;
-      font-weight: 700;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      margin-bottom: 10px;
-    }
-    
-    .recommendation-card {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-      border: 2px solid rgba(102, 126, 234, 0.3);
-      border-radius: 16px;
-      padding: 30px;
-      margin-bottom: 30px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-    }
-    
-    .recommendation-card h2 {
-      font-size: 32px;
-      margin-bottom: 20px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-    }
-    
-    .badge {
-      display: inline-block;
-      padding: 8px 20px;
-      border-radius: 20px;
-      font-size: 18px;
-      font-weight: 700;
-    }
-    
-    .badge.buy {
-      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-      color: white;
-    }
-    
-    .badge.sell {
-      background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
-      color: white;
-    }
-    
-    .badge.hold {
-      background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
-      color: #1a1a2e;
-    }
-    
-    .conviction {
-      font-size: 24px;
-      color: #ffd700;
-    }
-    
-    .section {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 25px;
-      margin-bottom: 25px;
-    }
-    
-    .section h3 {
-      font-size: 24px;
-      margin-bottom: 20px;
-      color: #667eea;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    
-    .data-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-    
-    .data-item {
-      background: rgba(255, 255, 255, 0.05);
-      padding: 15px;
-      border-radius: 8px;
-      border-left: 4px solid #667eea;
-    }
-    
-    .data-item label {
-      display: block;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #888;
-      margin-bottom: 5px;
-    }
-    
-    .data-item value {
-      display: block;
-      font-size: 20px;
-      font-weight: 600;
-      color: #ffffff;
-    }
-    
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-      margin: 20px 0;
-      background: rgba(255, 255, 255, 0.02);
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    
-    .table th {
-      background: rgba(102, 126, 234, 0.2);
-      padding: 15px;
-      text-align: left;
-      font-weight: 600;
-      text-transform: uppercase;
-      font-size: 12px;
-      letter-spacing: 1px;
-      color: #667eea;
-    }
-    
-    .table td {
-      padding: 15px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    .debate-section {
-      margin-top: 40px;
-    }
-    
-    .debate-round {
-      margin-bottom: 30px;
-    }
-    
-    .debate-round h4 {
-      font-size: 20px;
-      margin-bottom: 15px;
-      color: #f2c94c;
-    }
-    
-    .argument {
-      background: rgba(255, 255, 255, 0.03);
-      border-left: 4px solid;
-      padding: 20px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-    }
-    
-    .argument.bull {
-      border-left-color: #38ef7d;
-    }
-    
-    .argument.bear {
-      border-left-color: #f45c43;
-    }
-    
-    .argument-header {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      font-weight: 700;
-      font-size: 16px;
-    }
-    
-    .verdict {
-      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
-      border: 2px solid rgba(102, 126, 234, 0.4);
-      border-radius: 12px;
-      padding: 25px;
-      margin-top: 20px;
-    }
-    
-    .verdict h4 {
-      font-size: 22px;
-      margin-bottom: 15px;
-      color: #667eea;
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 100px 20px;
-    }
-    
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid rgba(102, 126, 234, 0.2);
-      border-top-color: #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .error {
-      background: rgba(235, 51, 73, 0.1);
-      border: 2px solid rgba(235, 51, 73, 0.3);
-      border-radius: 12px;
-      padding: 30px;
-      text-align: center;
-    }
-  </style>
+  <title>Orthogonal Research Terminal</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
-<body>
-  <div class="container">
-    <div class="loading" id="loading">
-      <div class="loading-spinner"></div>
-      <p>Loading research whiteboard...</p>
+<body class="whiteboard">
+  <!-- Header -->
+  <header class="whiteboard-header">
+    <div class="whiteboard-brand">
+      <span class="logo">⊥</span>
+      <span class="logo-text">Orthogonal</span>
+      <span style="margin-left: 12px; color: var(--color-text-tertiary); font-size: 13px;">Research Terminal</span>
     </div>
-    
-    <div id="content" style="display: none;"></div>
+  </header>
+
+  <!-- Loading State -->
+  <div id="loading" style="display: flex; justify-content: center; align-items: center; height: 80vh; color: var(--color-text-secondary);">
+    <div style="text-align: center;">
+      <div style="font-size: 48px; margin-bottom: 16px;">⊥</div>
+      <div style="font-size: 16px;">Loading research data...</div>
+    </div>
   </div>
-  
+
+  <!-- Main Content -->
+  <div id="content" class="whiteboard-content" style="display: none;"></div>
+
   <script>
-    // Get research ID from URL parameter
+    // Parse URL parameters
     const urlParams = new URLSearchParams(window.location.search);
-    const researchId = urlParams.get('id');
     const ticker = urlParams.get('ticker');
-    
+
     if (!ticker) {
-      document.getElementById('loading').innerHTML = '<div class="error"><h2>❌ No Research Data</h2><p>Please run a deep research query first.</p></div>';
+      document.getElementById('loading').innerHTML = `
+        <div style="text-align: center; color: var(--color-text-secondary);">
+          <div style="font-size: 48px; margin-bottom: 16px;">⊥</div>
+          <div style="font-size: 18px; margin-bottom: 8px;">Ticker Not Specified</div>
+          <div style="font-size: 14px;">Please provide a ticker symbol in the URL.</div>
+        </div>
+      `;
     } else {
-      // For now, fetch from localStorage (will be API endpoint later)
-      loadWhiteboard();
+      document.title = `${ticker} Research — Orthogonal Terminal`;
+      loadResearch(ticker);
     }
-    
-    async function loadWhiteboard() {
+
+    async function loadResearch(ticker) {
       try {
-        // Fetch from API
         const response = await fetch(`http://localhost:8788/api/research/${ticker}`);
         
         if (!response.ok) {
           if (response.status === 404) {
             document.getElementById('loading').innerHTML = `
-              <div class="error">
-                <h2>❌ Research Not Found</h2>
-                <p>Run "Should I buy ${ticker}?" first to generate research.</p>
-                <p style="margin-top: 20px; color: #888;">Go back to the chat and ask for deep research on ${ticker}.</p>
+              <div style="text-align: center; color: var(--color-text-secondary);">
+                <div style="font-size: 48px; margin-bottom: 16px;">⊥</div>
+                <div style="font-size: 18px; margin-bottom: 8px;">Research Not Found</div>
+                <div style="font-size: 14px;">Run deep research on ${ticker} first.</div>
+                <div style="margin-top: 24px;">
+                  <a href="chat.html" style="color: var(--color-accent); text-decoration: none; font-weight: 600;">← Back to Terminal</a>
+                </div>
               </div>
             `;
           } else {
@@ -281,89 +68,84 @@
         }
         
         const data = await response.json();
-        console.log('📊 Loaded research data:', data);
-        renderWhiteboard(data);
+        console.log('📊 Research data:', data);
+        renderResearch(data);
         
       } catch (e) {
-        console.error('Error loading whiteboard:', e);
+        console.error('Error loading research:', e);
         document.getElementById('loading').innerHTML = `
-          <div class="error">
-            <h2>❌ Error Loading Data</h2>
-            <p>${e.message}</p>
-            <p style="margin-top: 20px; color: #888;">Make sure the backend is running on port 8788.</p>
+          <div style="text-align: center; color: var(--color-text-secondary);">
+            <div style="font-size: 48px; margin-bottom: 16px;">⊥</div>
+            <div style="font-size: 18px; margin-bottom: 8px;">Error Loading Data</div>
+            <div style="font-size: 14px;">${e.message}</div>
+            <div style="margin-top: 24px;">
+              <a href="chat.html" style="color: var(--color-accent); text-decoration: none; font-weight: 600;">← Back to Terminal</a>
+            </div>
           </div>
         `;
       }
     }
-    
-    function renderWhiteboard(data) {
+
+    function renderResearch(data) {
       const content = document.getElementById('content');
       const loading = document.getElementById('loading');
       
-      console.log('Rendering whiteboard with data:', data);
-      
-      // Extract values with proper fallbacks
-      const action = data.recommendation || data.action || 'HOLD';
-      const conviction = data.conviction || 5;
-      const currentPrice = data.current_price || 0;
-      const targetPrice = data.target_price || 0;
-      const upsidePct = data.upside_pct || 0;
-      const thesis = data.key_thesis || data.headline || 'Analysis in progress';
-      
       // Build HTML
       let html = `
-        <div class="header">
-          <h1>${data.ticker} Research Whiteboard</h1>
-          <p style="font-size: 18px; color: #888;">Comprehensive multi-source analysis • Generated: ${new Date().toLocaleString()}</p>
-        </div>
-        
-        <div class="recommendation-card">
-          <h2>
-            <span class="badge ${action.toLowerCase().replace(' ', '-')}">${action}</span>
-            <span class="conviction">${'⭐'.repeat(conviction)} ${conviction}/10</span>
-          </h2>
-          <div style="font-size: 24px; margin-top: 15px;">
-            $${currentPrice.toFixed(2)} → $${targetPrice.toFixed(2)} <span style="color: ${upsidePct > 0 ? '#38ef7d' : '#f45c43'};">(${upsidePct > 0 ? '+' : ''}${upsidePct.toFixed(1)}%)</span>
+        <!-- Executive Summary -->
+        <div class="section" style="background: var(--color-surface); border: 1px solid var(--color-accent);">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+            <div>
+              <h1 style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">${data.ticker}</h1>
+              <div style="display: flex; gap: 16px; align-items: center;">
+                <span style="padding: 4px 16px; border-radius: 6px; font-size: 14px; font-weight: 700; letter-spacing: 0.5px; ${data.recommendation === 'BUY' ? 'background: rgba(48, 209, 88, 0.2); color: var(--color-success);' : data.recommendation === 'SELL' ? 'background: rgba(255, 69, 58, 0.2); color: var(--color-danger);' : 'background: rgba(161, 161, 166, 0.2); color: var(--color-text-secondary);'}">${data.recommendation}</span>
+                <span style="font-size: 18px; color: var(--color-text-secondary);">Conviction: ${data.conviction}/10 ${'⭐'.repeat(data.conviction)}</span>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div style="font-size: 32px; font-weight: 600; font-family: var(--font-mono);">$${data.current_price ? data.current_price.toFixed(2) : 'N/A'} → $${data.target_price ? data.target_price.toFixed(2) : 'N/A'}</div>
+              <div style="font-size: 16px; color: ${(data.upside_pct || 0) > 0 ? 'var(--color-success)' : 'var(--color-danger)'};">${(data.upside_pct || 0) > 0 ? '+' : ''}${(data.upside_pct || 0).toFixed(1)}%</div>
+            </div>
           </div>
-          <p style="font-size: 18px; margin-top: 20px; line-height: 1.8;">${thesis}</p>
+          <div style="padding: 20px; background: var(--color-surface-elevated); border-radius: 8px; border-left: 3px solid var(--color-accent);">
+            <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px;">Investment Thesis</div>
+            <p style="font-size: 15px; line-height: 1.7; color: var(--color-text-primary);">${data.thesis || data.key_thesis || 'No thesis available'}</p>
+          </div>
         </div>
-        
+
         ${renderMarketData(data)}
         ${renderFundamentals(data)}
         ${renderPeerComparison(data)}
+        ${renderFinancialStatements(data)}
         ${renderSECFilings(data)}
         ${renderSocialSentiment(data)}
         ${renderInstitutional(data)}
         ${renderNews(data)}
-        ${renderBullBearCases(data)}
-        ${renderDebate(data)}
-        ${renderSpecialistScores(data)}
         ${renderRiskAssessment(data)}
+        ${renderBullBearCases(data)}
+        ${renderDebateTranscript(data)}
       `;
       
       content.innerHTML = html;
       loading.style.display = 'none';
       content.style.display = 'block';
     }
-    
+
     function renderMarketData(data) {
-      const priceData = data.price_data || {};
-      const signals = data.signals || {};
-      const priceInfo = signals.price || {};
-      
+      const priceData = data.price_data || data.signals?.price || {};
       return `
         <div class="section">
-          <h3>📊 Market Data</h3>
+          <h3>📈 Market Data</h3>
           <div class="data-grid">
-            ${renderDataItem('Current Price', priceInfo.price ? '$' + priceInfo.price.toFixed(2) : priceData.current_price ? '$' + priceData.current_price : 'N/A')}
-            ${renderDataItem('Market Cap', priceInfo.market_cap ? formatLargeNumber(priceInfo.market_cap) : priceData.market_cap ? formatLargeNumber(priceData.market_cap) : 'N/A')}
-            ${renderDataItem('Volume', priceInfo.volume ? formatVolume(priceInfo.volume) : priceData.volume ? formatVolume(priceData.volume) : 'N/A')}
-            ${renderDataItem('Day Change', priceInfo.day_change_percent ? priceInfo.day_change_percent.toFixed(2) + '%' : priceData.day_change_pct ? priceData.day_change_pct.toFixed(2) + '%' : 'N/A')}
+            ${renderDataItem('Current Price', priceData.current_price ? '$' + priceData.current_price.toFixed(2) : 'N/A')}
+            ${renderDataItem('Market Cap', priceData.market_cap ? formatLargeNumber(priceData.market_cap) : 'N/A')}
+            ${renderDataItem('Volume', priceData.volume ? formatVolume(priceData.volume) : 'N/A')}
+            ${renderDataItem('Day Change', priceData.day_change_pct ? (priceData.day_change_pct > 0 ? '+' : '') + priceData.day_change_pct.toFixed(2) + '%' : 'N/A')}
           </div>
         </div>
       `;
     }
-    
+
     function renderFundamentals(data) {
       const fundamentals = data.fundamentals || {};
       const signals = data.signals || {};
@@ -379,9 +161,6 @@
       
       const peRatio = getValue('pe_ratio');
       const profitMargin = getValue('profit_margin');
-      const revenueGrowth = getValue('revenue_growth');
-      const debtToEquity = getValue('debt_to_equity');
-      const roe = getValue('roe');
       const eps = getValue('eps');
       const revenue = getValue('revenue');
       const netIncome = getValue('net_income');
@@ -392,64 +171,40 @@
           <div class="data-grid">
             ${renderDataItem('P/E Ratio', peRatio !== null ? peRatio.toFixed(2) + 'x' : 'N/A')}
             ${renderDataItem('Profit Margin', profitMargin !== null ? profitMargin.toFixed(2) + '%' : 'N/A')}
-            ${renderDataItem('Revenue Growth', revenueGrowth !== null ? revenueGrowth.toFixed(2) + '%' : 'N/A')}
-            ${renderDataItem('Debt/Equity', debtToEquity !== null ? debtToEquity.toFixed(2) : 'N/A')}
-            ${renderDataItem('ROE', roe !== null ? roe.toFixed(2) + '%' : 'N/A')}
-            ${renderDataItem('EPS', eps !== null ? '$' + eps.toFixed(2) : 'N/A')}
-            ${revenue !== null ? renderDataItem('Revenue (TTM)', formatLargeNumber(revenue)) : ''}
-            ${netIncome !== null ? renderDataItem('Net Income', formatLargeNumber(netIncome)) : ''}
+            ${renderDataItem('EPS (TTM)', eps !== null ? '$' + eps.toFixed(2) : 'N/A')}
+            ${renderDataItem('Revenue (TTM)', revenue !== null ? formatLargeNumber(revenue) : 'N/A')}
+            ${renderDataItem('Net Income', netIncome !== null ? formatLargeNumber(netIncome) : 'N/A')}
           </div>
-          ${renderFinancialStatements(data)}
           ${renderAnalystRatings(data)}
         </div>
       `;
     }
-    
-    function renderFinancialStatements(data) {
-      if (!data.financial_statements) return '';
-      
-      const statements = data.financial_statements;
-      let html = '<div style="margin-top: 30px;"><h4 style="color: #667eea; margin-bottom: 15px;">📊 Financial Statements</h4>';
-      
-      // Income Statement
-      if (statements.income_statement && Object.keys(statements.income_statement).length > 0) {
-        html += '<div style="margin-bottom: 20px;"><strong>Income Statement (Last Quarter)</strong>';
-        html += '<table class="table"><tbody>';
-        Object.entries(statements.income_statement).slice(0, 8).forEach(([key, value]) => {
-          html += `<tr><td>${key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</td><td style="text-align: right;">${typeof value === 'number' ? formatLargeNumber(value) : value}</td></tr>`;
-        });
-        html += '</tbody></table></div>';
-      }
-      
-      html += '</div>';
-      return html;
-    }
-    
+
     function renderAnalystRatings(data) {
       const ratings = data.analyst_ratings || data.signals?.analyst_ratings;
       if (!ratings) return '';
       
-      let html = '<div style="margin-top: 30px;"><h4 style="color: #667eea; margin-bottom: 15px;">⭐ Analyst Ratings</h4>';
-      html += '<div class="data-grid">';
-      
-      if (ratings.consensus) html += renderDataItem('Consensus', ratings.consensus);
-      if (ratings.target_price) html += renderDataItem('Avg Price Target', '$' + ratings.target_price.toFixed(2));
-      if (ratings.buy_count !== undefined) html += renderDataItem('Buy Ratings', ratings.buy_count);
-      if (ratings.hold_count !== undefined) html += renderDataItem('Hold Ratings', ratings.hold_count);
-      if (ratings.sell_count !== undefined) html += renderDataItem('Sell Ratings', ratings.sell_count);
-      
-      html += '</div></div>';
-      return html;
+      return `
+        <div style="margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--color-border);">
+          <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px;">Analyst Consensus</div>
+          <div class="data-grid">
+            ${ratings.consensus ? renderDataItem('Consensus', ratings.consensus) : ''}
+            ${ratings.target_price ? renderDataItem('Avg Price Target', '$' + ratings.target_price.toFixed(2)) : ''}
+            ${ratings.buy_count !== undefined ? renderDataItem('Buy Ratings', ratings.buy_count) : ''}
+            ${ratings.hold_count !== undefined ? renderDataItem('Hold Ratings', ratings.hold_count) : ''}
+            ${ratings.sell_count !== undefined ? renderDataItem('Sell Ratings', ratings.sell_count) : ''}
+          </div>
+        </div>
+      `;
     }
-    
+
     function renderPeerComparison(data) {
       const peerData = data.peer_comparison || data.signals?.peer_comparison;
-      if (!peerData || !peerData.comparison) return '';
+      if (!peerData || !peerData.comparison || peerData.comparison.length === 0) return '';
       
-      let html = `
+      return `
         <div class="section">
           <h3>🏆 Peer Comparison</h3>
-          <p style="margin-bottom: 20px; color: #888;">How ${data.ticker} stacks up against competitors</p>
           <table class="table">
             <thead>
               <tr>
@@ -457,254 +212,254 @@
                 <th style="text-align: right;">Price</th>
                 <th style="text-align: right;">Market Cap</th>
                 <th style="text-align: right;">P/E Ratio</th>
-                <th style="text-align: right;">Profit Margin</th>
+                <th style="text-align: right;">Margin</th>
                 <th style="text-align: right;">Revenue (B)</th>
-                <th style="text-align: right;">EPS</th>
+                <th style="text-align: right;">EPS (TTM)</th>
               </tr>
             </thead>
             <tbody>
+              ${peerData.comparison.map(comp => {
+                const isMain = comp.ticker === data.ticker;
+                return `
+                  <tr style="${isMain ? 'background: rgba(0, 113, 227, 0.1);' : ''}">
+                    <td style="font-weight: ${isMain ? '700' : '500'};">${comp.ticker}${isMain ? ' ⊥' : ''}</td>
+                    <td style="text-align: right;">$${comp.price ? comp.price.toFixed(2) : 'N/A'}</td>
+                    <td style="text-align: right;">${comp.market_cap ? formatLargeNumber(comp.market_cap) : 'N/A'}</td>
+                    <td style="text-align: right;">${comp.pe_ratio ? comp.pe_ratio.toFixed(2) + 'x' : 'N/A'}</td>
+                    <td style="text-align: right;">${comp.profit_margin ? comp.profit_margin.toFixed(2) + '%' : 'N/A'}</td>
+                    <td style="text-align: right;">${comp.revenue ? '$' + comp.revenue.toFixed(2) + 'B' : 'N/A'}</td>
+                    <td style="text-align: right;">${comp.eps ? (comp.eps > 0 ? '$' + comp.eps.toFixed(2) : '-$' + Math.abs(comp.eps).toFixed(2)) : 'N/A'}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
       `;
-      
-      peerData.comparison.forEach((comp, idx) => {
-        const isMain = comp.ticker === data.ticker;
-        html += `
-          <tr style="${isMain ? 'background: rgba(102, 126, 234, 0.1); font-weight: 600;' : ''}">
-            <td>${comp.ticker}${isMain ? ' (Main)' : ''}</td>
-            <td style="text-align: right;">$${comp.price ? comp.price.toFixed(2) : 'N/A'}</td>
-            <td style="text-align: right;">${comp.market_cap ? formatLargeNumber(comp.market_cap) : 'N/A'}</td>
-            <td style="text-align: right;">${comp.pe_ratio ? comp.pe_ratio.toFixed(2) + 'x' : 'N/A'}</td>
-            <td style="text-align: right;">${comp.profit_margin ? comp.profit_margin.toFixed(2) + '%' : 'N/A'}</td>
-            <td style="text-align: right;">${comp.revenue ? '$' + comp.revenue.toFixed(2) + 'B' : 'N/A'}</td>
-            <td style="text-align: right;">${comp.eps ? '$' + comp.eps.toFixed(2) : 'N/A'}</td>
-          </tr>
-        `;
-      });
-      
-      html += '</tbody></table></div>';
-      return html;
     }
-    
+
+    function renderFinancialStatements(data) {
+      const statements = data.financial_statements || data.signals?.financials;
+      if (!statements) return '';
+      
+      return `
+        <div class="section">
+          <h3>📊 Financial Statements (Latest Quarter)</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Metric</th>
+                <th style="text-align: right;">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${statements.revenue ? `<tr><td>Revenue</td><td style="text-align: right;">${formatLargeNumber(statements.revenue)}</td></tr>` : ''}
+              ${statements.gross_profit ? `<tr><td>Gross Profit</td><td style="text-align: right;">${formatLargeNumber(statements.gross_profit)}</td></tr>` : ''}
+              ${statements.operating_income ? `<tr><td>Operating Income</td><td style="text-align: right;">${formatLargeNumber(statements.operating_income)}</td></tr>` : ''}
+              ${statements.net_income ? `<tr><td>Net Income</td><td style="text-align: right;">${formatLargeNumber(statements.net_income)}</td></tr>` : ''}
+              ${statements.profit_margin_pct ? `<tr><td>Profit Margin</td><td style="text-align: right;">${statements.profit_margin_pct.toFixed(2)}%</td></tr>` : ''}
+              ${statements.eps ? `<tr><td>EPS</td><td style="text-align: right;">$${statements.eps.toFixed(2)}</td></tr>` : ''}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
     function renderSECFilings(data) {
       const ticker = data.ticker;
       return `
         <div class="section">
           <h3>📄 SEC Filings & Documents</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=10-K&dateb=&owner=exclude&count=40" target="_blank" style="padding: 15px; background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; text-decoration: none; color: #667eea; text-align: center; transition: all 0.3s;">
-              <div style="font-size: 24px; margin-bottom: 8px;">📊</div>
-              <div style="font-weight: 600;">10-K (Annual)</div>
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=10-K&dateb=&owner=exclude&count=40" target="_blank" style="padding: 16px; background: var(--color-surface-elevated); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text-primary); text-align: center; transition: all 0.2s; display: block;">
+              <div style="font-size: 20px; margin-bottom: 8px;">📊</div>
+              <div style="font-size: 13px; font-weight: 600;">10-K (Annual)</div>
             </a>
-            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=10-Q&dateb=&owner=exclude&count=40" target="_blank" style="padding: 15px; background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; text-decoration: none; color: #667eea; text-align: center; transition: all 0.3s;">
-              <div style="font-size: 24px; margin-bottom: 8px;">📈</div>
-              <div style="font-weight: 600;">10-Q (Quarterly)</div>
+            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=10-Q&dateb=&owner=exclude&count=40" target="_blank" style="padding: 16px; background: var(--color-surface-elevated); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text-primary); text-align: center; transition: all 0.2s; display: block;">
+              <div style="font-size: 20px; margin-bottom: 8px;">📈</div>
+              <div style="font-size: 13px; font-weight: 600;">10-Q (Quarterly)</div>
             </a>
-            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=8-K&dateb=&owner=exclude&count=40" target="_blank" style="padding: 15px; background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; text-decoration: none; color: #667eea; text-align: center; transition: all 0.3s;">
-              <div style="font-size: 24px; margin-bottom: 8px;">📰</div>
-              <div style="font-weight: 600;">8-K (Current Events)</div>
+            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=8-K&dateb=&owner=exclude&count=40" target="_blank" style="padding: 16px; background: var(--color-surface-elevated); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text-primary); text-align: center; transition: all 0.2s; display: block;">
+              <div style="font-size: 20px; margin-bottom: 8px;">📰</div>
+              <div style="font-size: 13px; font-weight: 600;">8-K (Events)</div>
             </a>
-            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=DEF%2014A&dateb=&owner=exclude&count=40" target="_blank" style="padding: 15px; background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; text-decoration: none; color: #667eea; text-align: center; transition: all 0.3s;">
-              <div style="font-size: 24px; margin-bottom: 8px;">🗳️</div>
-              <div style="font-weight: 600;">Proxy Statements</div>
-            </a>
-            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=13F&dateb=&owner=exclude&count=40" target="_blank" style="padding: 15px; background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; text-decoration: none; color: #667eea; text-align: center; transition: all 0.3s;">
-              <div style="font-size: 24px; margin-bottom: 8px;">🏦</div>
-              <div style="font-weight: 600;">13F (Institutional)</div>
-            </a>
-            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=&dateb=&owner=exclude&count=40" target="_blank" style="padding: 15px; background: rgba(102, 126, 234, 0.1); border: 1px solid rgba(102, 126, 234, 0.3); border-radius: 8px; text-decoration: none; color: #667eea; text-align: center; transition: all 0.3s;">
-              <div style="font-size: 24px; margin-bottom: 8px;">📁</div>
-              <div style="font-weight: 600;">All Filings</div>
+            <a href="https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&CIK=${ticker}&type=&dateb=&owner=exclude&count=40" target="_blank" style="padding: 16px; background: var(--color-surface-elevated); border: 1px solid var(--color-border); border-radius: 8px; text-decoration: none; color: var(--color-text-primary); text-align: center; transition: all 0.2s; display: block;">
+              <div style="font-size: 20px; margin-bottom: 8px;">📁</div>
+              <div style="font-size: 13px; font-weight: 600;">All Filings</div>
             </a>
           </div>
         </div>
       `;
     }
-    
+
+    function renderSocialSentiment(data) {
+      const sentiment = data.sentiment || {};
+      if (!sentiment.reddit && !sentiment.twitter) return '';
+      
+      return `
+        <div class="section">
+          <h3>📱 Social Sentiment</h3>
+          <div class="data-grid">
+            ${sentiment.reddit ? `
+              <div class="data-item">
+                <div class="data-item-label">Reddit</div>
+                <div class="data-item-value" style="font-size: 16px; color: ${sentiment.reddit.sentiment === 'VERY BULLISH' || sentiment.reddit.sentiment === 'BULLISH' ? 'var(--color-success)' : sentiment.reddit.sentiment === 'BEARISH' || sentiment.reddit.sentiment === 'VERY BEARISH' ? 'var(--color-danger)' : 'var(--color-text-secondary)'};">${sentiment.reddit.sentiment}</div>
+                <div style="font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px;">${sentiment.reddit.bullish_pct}% bullish, ${sentiment.reddit.mentions} mentions</div>
+              </div>
+            ` : ''}
+            ${sentiment.twitter ? `
+              <div class="data-item">
+                <div class="data-item-label">Twitter</div>
+                <div class="data-item-value" style="font-size: 16px; color: ${sentiment.twitter.sentiment === 'VERY BULLISH' || sentiment.twitter.sentiment === 'BULLISH' ? 'var(--color-success)' : sentiment.twitter.sentiment === 'BEARISH' || sentiment.twitter.sentiment === 'VERY BEARISH' ? 'var(--color-danger)' : 'var(--color-text-secondary)'};">${sentiment.twitter.sentiment}</div>
+                <div style="font-size: 12px; color: var(--color-text-tertiary); margin-top: 4px;">${sentiment.twitter.bullish_pct}% bullish</div>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderInstitutional(data) {
+      const institutional = data.institutional || {};
+      if (Object.keys(institutional).length === 0) return '';
+      
+      return `
+        <div class="section">
+          <h3>🏦 Institutional Activity</h3>
+          <div style="font-size: 14px; color: var(--color-text-secondary); line-height: 1.6;">
+            ${institutional['13f'] ? `<div style="margin-bottom: 12px;"><strong style="color: var(--color-text-primary);">13F Changes:</strong> ${institutional['13f'].sentiment || 'NEUTRAL'}</div>` : ''}
+            ${institutional.insider ? `<div><strong style="color: var(--color-text-primary);">Insider Trades:</strong> ${institutional.insider.summary || 'No recent activity'}</div>` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderNews(data) {
+      const news = data.news || [];
+      if (news.length === 0) return '';
+      
+      return `
+        <div class="section">
+          <h3>📰 Recent News</h3>
+          <div style="display: flex; flex-direction: column; gap: 16px;">
+            ${news.slice(0, 5).map((item, idx) => `
+              <div style="padding-bottom: 16px; ${idx < 4 ? 'border-bottom: 1px solid var(--color-border);' : ''}">
+                <div style="font-size: 15px; font-weight: 600; margin-bottom: 4px; color: var(--color-text-primary);">${item.title || item.headline}</div>
+                <div style="font-size: 13px; color: var(--color-text-tertiary);">${item.source || ''} ${item.date ? '• ' + item.date : ''}</div>
+                ${item.url ? `<a href="${item.url}" target="_blank" style="font-size: 13px; color: var(--color-accent); text-decoration: none; margin-top: 4px; display: inline-block;">Read more →</a>` : ''}
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRiskAssessment(data) {
+      const risks = data.risk_assessment || {};
+      if (Object.keys(risks).length === 0) return '';
+      
+      return `
+        <div class="section">
+          <h3>⚠️ Risk Assessment</h3>
+          <div class="data-grid">
+            ${risks.valuation_risk ? renderDataItem('Valuation Risk', risks.valuation_risk, getRiskColor(risks.valuation_risk)) : ''}
+            ${risks.volatility_risk ? renderDataItem('Volatility Risk', risks.volatility_risk, getRiskColor(risks.volatility_risk)) : ''}
+            ${risks.market_risk ? renderDataItem('Market Risk', risks.market_risk, getRiskColor(risks.market_risk)) : ''}
+          </div>
+          ${risks.pe_ratio ? `<div style="margin-top: 16px; padding: 12px; background: rgba(255, 69, 58, 0.1); border-radius: 8px; font-size: 13px; color: var(--color-text-secondary);">P/E Ratio: <strong style="color: var(--color-text-primary);">${risks.pe_ratio.toFixed(2)}x</strong></div>` : ''}
+        </div>
+      `;
+    }
+
     function renderBullBearCases(data) {
       if (!data.bull_case && !data.bear_case) return '';
       
       return `
         <div class="section">
           <h3>⚖️ Bull vs Bear Analysis</h3>
-          <div class="argument bull" style="margin-bottom: 20px;">
-            <div class="argument-header">🐂 BULL CASE</div>
-            <p>${data.bull_case || 'No bull case available'}</p>
-          </div>
-          <div class="argument bear">
-            <div class="argument-header">🐻 BEAR CASE</div>
-            <p>${data.bear_case || 'No bear case available'}</p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            ${data.bull_case ? `
+              <div style="padding: 20px; background: rgba(48, 209, 88, 0.1); border: 1px solid rgba(48, 209, 88, 0.3); border-radius: 8px;">
+                <div style="font-size: 14px; font-weight: 700; color: var(--color-success); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">🐂 Bull Case</div>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-primary);">${data.bull_case}</p>
+              </div>
+            ` : ''}
+            ${data.bear_case ? `
+              <div style="padding: 20px; background: rgba(255, 69, 58, 0.1); border: 1px solid rgba(255, 69, 58, 0.3); border-radius: 8px;">
+                <div style="font-size: 14px; font-weight: 700; color: var(--color-danger); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">🐻 Bear Case</div>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-primary);">${data.bear_case}</p>
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
     }
-    
-    function renderSpecialistScores(data) {
-      if (!data.specialist_scores) return '';
+
+    function renderDebateTranscript(data) {
+      const debate = data.debate_transcript || {};
+      if (!debate.rounds || debate.rounds.length === 0) return '';
       
-      const scores = data.specialist_scores;
       return `
         <div class="section">
-          <h3>📊 Specialist Analysis Scores</h3>
-          <div class="data-grid">
-            ${renderDataItem('Fundamental Analysis', scores.fundamental_score ? scores.fundamental_score.toFixed(1) + '/10' : 'N/A')}
-            ${renderDataItem('Technical Analysis', scores.technical_score ? scores.technical_score.toFixed(1) + '/10' : 'N/A')}
-            ${renderDataItem('Sentiment Analysis', scores.sentiment_score ? scores.sentiment_score.toFixed(1) + '/10' : 'N/A')}
+          <h3>🗣️ Multi-Agent Debate Transcript</h3>
+          <div style="display: flex; flex-direction: column; gap: 20px;">
+            ${debate.rounds.map((round, idx) => `
+              <div>
+                <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Round ${idx + 1}</div>
+                <div style="padding: 16px; background: rgba(48, 209, 88, 0.1); border-left: 3px solid var(--color-success); border-radius: 8px; margin-bottom: 12px;">
+                  <div style="font-size: 13px; font-weight: 700; color: var(--color-success); margin-bottom: 8px;">🐂 Bull Agent:</div>
+                  <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-primary);">${round.bull_argument || ''}</p>
+                </div>
+                <div style="padding: 16px; background: rgba(255, 69, 58, 0.1); border-left: 3px solid var(--color-danger); border-radius: 8px;">
+                  <div style="font-size: 13px; font-weight: 700; color: var(--color-danger); margin-bottom: 8px;">🐻 Bear Agent:</div>
+                  <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-primary);">${round.bear_argument || ''}</p>
+                </div>
+              </div>
+            `).join('')}
+            ${debate.winner ? `
+              <div style="padding: 20px; background: var(--color-surface-elevated); border: 2px solid var(--color-accent); border-radius: 8px;">
+                <div style="font-size: 14px; font-weight: 700; color: var(--color-accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Judge Verdict</div>
+                <div style="font-size: 16px; margin-bottom: 8px;"><strong>Winner:</strong> ${debate.winner === 'bull' ? '🐂 Bull' : '🐻 Bear'} (${debate.confidence}% confidence)</div>
+                <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-secondary);">${debate.reasoning || ''}</p>
+              </div>
+            ` : ''}
           </div>
         </div>
       `;
     }
-    
-    function renderInstitutional(data) {
-      const instData = data.institutional_data || {};
-      const signals = data.signals || {};
-      
-      let html = '<div class="section"><h3>🏦 Institutional Activity</h3><div class="data-grid">';
-      
-      if (signals.institutional_activity) {
-        const inst = signals.institutional_activity;
-        html += renderDataItem('13F Activity', inst.activity_level || 'N/A');
-        html += renderDataItem('New Positions', inst.new_positions_count || 0);
-        html += renderDataItem('Increased Stakes', inst.increased_count || 0);
-      }
-      
-      if (signals.insider_trades) {
-        const insider = signals.insider_trades;
-        if (insider.trades && insider.trades.length > 0) {
-          const buys = insider.trades.filter(t => t.transaction_type === 'Buy').length;
-          const sells = insider.trades.filter(t => t.transaction_type === 'Sell').length;
-          html += renderDataItem('Insider Buys', buys);
-          html += renderDataItem('Insider Sells', sells);
-        }
-      }
-      
-      html += '</div></div>';
-      return html;
-    }
-    
-    function renderDataItem(label, value) {
+
+    // Helper Functions
+    function renderDataItem(label, value, color = null) {
       return `
         <div class="data-item">
-          <label>${label}</label>
-          <value>${value}</value>
+          <div class="data-item-label">${label}</div>
+          <div class="data-item-value" style="${color ? 'color: ' + color + ';' : ''}">${value}</div>
         </div>
       `;
     }
-    
+
     function formatLargeNumber(num) {
       if (num >= 1e12) return '$' + (num / 1e12).toFixed(2) + 'T';
       if (num >= 1e9) return '$' + (num / 1e9).toFixed(2) + 'B';
       if (num >= 1e6) return '$' + (num / 1e6).toFixed(2) + 'M';
+      if (num >= 1e3) return '$' + (num / 1e3).toFixed(2) + 'K';
       return '$' + num.toFixed(2);
     }
-    
-    function formatVolume(vol) {
-      if (vol >= 1e9) return (vol / 1e9).toFixed(2) + 'B';
-      if (vol >= 1e6) return (vol / 1e6).toFixed(2) + 'M';
-      if (vol >= 1e3) return (vol / 1e3).toFixed(2) + 'K';
-      return vol.toString();
+
+    function formatVolume(num) {
+      if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+      if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+      if (num >= 1e3) return (num / 1e3).toFixed(2) + 'K';
+      return num.toString();
     }
-    
-    function renderSocialSentiment(data) {
-      if (!data.sentiment_data) return '';
-      
-      let html = '<div class="section"><h3>📱 Social & Institutional Sentiment</h3>';
-      
-      if (data.sentiment_data.reddit) {
-        const r = data.sentiment_data.reddit;
-        html += `<div class="data-item">
-          <label>Reddit Sentiment</label>
-          <value>${r.sentiment_label} (${(r.sentiment_score * 100).toFixed(0)}% bullish, ${r.mention_volume} mentions)</value>
-        </div>`;
-      }
-      
-      if (data.sentiment_data.twitter) {
-        const t = data.sentiment_data.twitter;
-        html += `<div class="data-item">
-          <label>Twitter Sentiment</label>
-          <value>${t.sentiment_label} (${(t.sentiment_score * 100).toFixed(0)}% bullish)</value>
-        </div>`;
-      }
-      
-      html += '</div>';
-      return html;
-    }
-    
-    function renderNews(data) {
-      if (!data.news_headlines || data.news_headlines.length === 0) return '';
-      
-      let html = '<div class="section"><h3>📰 Recent News</h3>';
-      html += '<table class="table"><thead><tr><th>Headline</th><th>Date</th></tr></thead><tbody>';
-      
-      data.news_headlines.forEach(news => {
-        html += `<tr>
-          <td><a href="${news.url}" target="_blank" style="color: #667eea; text-decoration: none;">${news.title}</a></td>
-          <td style="white-space: nowrap;">${new Date(news.published_at).toLocaleDateString()}</td>
-        </tr>`;
-      });
-      
-      html += '</tbody></table></div>';
-      return html;
-    }
-    
-    function renderDebate(data) {
-      if (!data.debate_transcript) return '';
-      
-      let html = '<div class="debate-section"><div class="section"><h3>🗣️ Bull vs Bear Debate Transcript</h3>';
-      
-      // Group by rounds
-      const rounds = {};
-      data.debate_transcript.forEach(entry => {
-        if (!rounds[entry.round]) rounds[entry.round] = [];
-        rounds[entry.round].push(entry);
-      });
-      
-      Object.keys(rounds).forEach(roundNum => {
-        html += `<div class="debate-round"><h4>Round ${roundNum}</h4>`;
-        
-        rounds[roundNum].forEach(entry => {
-          const isBull = entry.speaker === 'BULL';
-          html += `
-            <div class="argument ${isBull ? 'bull' : 'bear'}">
-              <div class="argument-header">
-                ${isBull ? '🐂 BULL AGENT' : '🐻 BEAR AGENT'}
-              </div>
-              <p>${entry.argument}</p>
-            </div>
-          `;
-        });
-        
-        html += '</div>';
-      });
-      
-      // Verdict
-      html += `
-        <div class="verdict">
-          <h4>⚖️ Judge Verdict</h4>
-          <p><strong>Winner:</strong> ${data.debate_winner === 'BULL' ? '🐂 BULL' : '🐻 BEAR'}</p>
-          <p><strong>Key Points:</strong></p>
-          <ul>
-            ${data.key_points ? data.key_points.map(p => '<li>' + p + '</li>').join('') : '<li>Analysis complete</li>'}
-          </ul>
-        </div>
-      `;
-      
-      html += '</div></div>';
-      return html;
-    }
-    
-    function renderRiskAssessment(data) {
-      if (!data.risk_assessment) return '';
-      
-      let html = '<div class="section"><h3>⚠️ Risk Assessment</h3><div class="data-grid">';
-      
-      Object.entries(data.risk_assessment).forEach(([key, value]) => {
-        const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-        html += renderDataItem(label, value);
-      });
-      
-      html += '</div></div>';
-      return html;
+
+    function getRiskColor(risk) {
+      const riskLower = (risk || '').toLowerCase();
+      if (riskLower.includes('extreme') || riskLower.includes('very high')) return 'var(--color-danger)';
+      if (riskLower.includes('high')) return '#ff9500';
+      if (riskLower.includes('medium')) return 'var(--color-warning)';
+      return 'var(--color-success)';
     }
   </script>
 </body>
 </html>
-

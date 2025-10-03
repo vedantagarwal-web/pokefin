@@ -3,39 +3,184 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Pokefin — Chat</title>
-    <meta name="description" content="Pokefin MVP chat — conversational financial companion (prototype)" />
+    <title>Orthogonal — Institutional-Grade AI Research</title>
+    <meta name="description" content="Multi-agent AI system for deep equity research. Bloomberg-level analysis, powered by AI." />
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body>
-    <div class="app">
-      <header class="topbar">
-        <div class="brand">
-          <span class="brand-emoji">🟦</span>
-          <span class="brand-name">Pokefin</span>
+  <body class="landing">
+    <!-- Navigation -->
+    <nav class="nav">
+      <div class="nav-container">
+        <div class="nav-brand">
+          <span class="logo">⊥</span>
+          <span class="logo-text">Orthogonal</span>
         </div>
-        <div class="actions">
-          <button id="resetBtn" title="Reset conversation">Reset</button>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#faq">FAQ</a>
+          <a href="chat.html" class="nav-cta">Launch Terminal</a>
         </div>
-      </header>
+      </div>
+    </nav>
 
-      <main id="chat" class="chat" aria-live="polite" aria-label="Conversation">
-        <!-- Messages will render here -->
-      </main>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-container">
+        <h1 class="hero-title">
+          Institutional-Grade<br/>
+          <span class="gradient-text">AI Research</span>
+        </h1>
+        <p class="hero-subtitle">
+          Multi-agent AI system that thinks like a hedge fund research team.<br/>
+          Deep equity analysis. Bloomberg-level data. In seconds.
+        </p>
+        <div class="hero-cta">
+          <a href="chat.html" class="btn-primary">Launch Terminal</a>
+          <a href="#features" class="btn-secondary">Learn More</a>
+        </div>
+        <div class="hero-badge">
+          <span class="badge-icon">⊥</span>
+          <span class="badge-text">Independent. Contrarian. Orthogonal.</span>
+        </div>
+      </div>
+    </section>
 
-      <footer class="composer">
-        <label class="sr-only" for="msg">Message</label>
-        <textarea id="msg" rows="1" placeholder="Message Pokefin" autocomplete="off"></textarea>
-        <button id="send" class="send" aria-label="Send message">Send</button>
-      </footer>
+    <!-- Features Section -->
+    <section id="features" class="features">
+      <div class="features-container">
+        <h2 class="section-title">How It Works</h2>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>Multi-Agent System</h3>
+            <p>Fundamental, technical, sentiment, and risk analysts debate every stock. Bull vs Bear. Just like a real hedge fund.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Bloomberg-Level Data</h3>
+            <p>Real-time prices, financial statements, SEC filings, institutional positions, earnings transcripts, social sentiment.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>10 Data Sources</h3>
+            <p>Financial statements, analyst ratings, peer comparison, Reddit, Twitter, 13F filings, insider trades, options flow.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🎯</div>
+            <h3>Conviction Scoring</h3>
+            <p>Every recommendation comes with a conviction score (1-10). We show you exactly why we're confident or uncertain.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">📋</div>
+            <h3>Research Whiteboard</h3>
+            <p>Bloomberg terminal-style interface. Full financial statements, peer comparison, debate transcript, risk assessment.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon">🔗</div>
+            <h3>Full Transparency</h3>
+            <p>Every data point is sourced. Direct links to SEC filings, earnings materials, institutional positions. No black box.</p>
+          </div>
+        </div>
+      </div>
+    </section>
 
-      <div class="disclaimer">
-        For education only — not financial advice.
+    <!-- Example Section -->
+    <section class="example">
+      <div class="example-container">
+        <h2 class="section-title">See It In Action</h2>
+        <div class="example-demo">
+          <div class="example-query">
+            <span class="example-prompt">You:</span>
+            <span class="example-text">"Should I buy Tesla?"</span>
+          </div>
+          <div class="example-response">
+            <div class="example-result">
+              <div class="result-header">
+                <span class="result-badge sell">SELL</span>
+                <span class="result-conviction">2/10 ⭐⭐</span>
+              </div>
+              <div class="result-price">$436 → $370.60 (-15%)</div>
+              <div class="result-thesis">
+                "The increasing competition from major automakers and the potential for a saturated EV market could significantly threaten Tesla's market share and profit margins."
+              </div>
+              <div class="result-data">
+                <div class="data-point">
+                  <span class="data-label">P/E Ratio</span>
+                  <span class="data-value">302.78x</span>
+                </div>
+                <div class="data-point">
+                  <span class="data-label">Valuation Risk</span>
+                  <span class="data-value risk-extreme">EXTREME</span>
+                </div>
+                <div class="data-point">
+                  <span class="data-label">Reddit</span>
+                  <span class="data-value">33% Bullish</span>
+                </div>
+                <div class="data-point">
+                  <span class="data-label">Twitter</span>
+                  <span class="data-value">75% Bullish</span>
+                </div>
+              </div>
+              <a href="chat.html" class="result-cta">View Full Research →</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="faq">
+      <div class="faq-container">
+        <h2 class="section-title">Frequently Asked Questions</h2>
+        <div class="faq-grid">
+          <div class="faq-item">
+            <h3 class="faq-question">How is this different from ChatGPT?</h3>
+            <p class="faq-answer">ChatGPT is a single model. Orthogonal is a multi-agent system where specialized AI analysts (fundamental, technical, sentiment, risk) debate every stock. We use real-time financial data from 10+ sources, not training data from years ago.</p>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-question">Where does the data come from?</h3>
+            <p class="faq-answer">Financial Datasets AI (real-time prices, financials), Exa AI (SEC filings, earnings materials, institutional positions), and social sentiment from Reddit/Twitter. All sources are cited with direct links.</p>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-question">Is this financial advice?</h3>
+            <p class="faq-answer">No. Orthogonal is a research tool for educational purposes. We provide analysis and insights, but you should always do your own due diligence and consult a licensed financial advisor before making investment decisions.</p>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-question">How accurate are the recommendations?</h3>
+            <p class="faq-answer">Our multi-agent debate system provides nuanced analysis with conviction scores. We show you both bull and bear cases, full debate transcript, and risk assessment. The goal is transparency, not guarantees.</p>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-question">What stocks can I research?</h3>
+            <p class="faq-answer">Any US-listed stock with a ticker. We support NYSE, NASDAQ, and major exchanges. Coverage includes financials, tech, healthcare, energy, and more.</p>
+          </div>
+          <div class="faq-item">
+            <h3 class="faq-question">How much does it cost?</h3>
+            <p class="faq-answer">Currently in private beta. We're testing with select users before public launch. Interested? Email us at hello@orthogonal.ai</p>
+          </div>
       </div>
     </div>
+    </section>
 
-    <script src="js/charts.js"></script>
-    <script type="module" src="js/app.js"></script>
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="footer-container">
+        <div class="footer-brand">
+          <span class="logo">⊥</span>
+          <span class="logo-text">Orthogonal</span>
+        </div>
+        <div class="footer-links">
+          <a href="#features">Features</a>
+          <a href="#faq">FAQ</a>
+          <a href="chat.html">Launch Terminal</a>
+        </div>
+        <div class="footer-credit">
+          Made with ❤️ in Berkeley, CA
+        </div>
+      </div>
+      <div class="footer-disclaimer">
+        Orthogonal is a research tool for educational purposes only. Not financial advice. 
+        Always consult a licensed financial advisor before making investment decisions.
+      </div>
+    </footer>
   </body>
   </html>
-

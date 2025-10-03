@@ -1976,14 +1976,24 @@ async def get_peer_comparison(ticker: str, peers: List[str] = None) -> Dict[str,
                 price_data = await get_stock_price(ticker=t, include_chart=False)
                 fin_data = await get_financials(ticker=t)
                 
+                # Annualize EPS if quarterly data (multiply by 4)
+                eps = fin_data.get("eps")
+                eps_annual = eps * 4 if eps and fin_data.get("period") == "quarterly" else eps
+                
+                # Calculate P/E with annualized EPS
+                pe_ratio = None
+                if eps_annual and eps_annual > 0 and price_data.get("price"):
+                    pe_ratio = price_data["price"] / eps_annual
+                
                 comparison_data.append({
                     "ticker": t,
                     "price": price_data.get("price", 0),
                     "market_cap": price_data.get("market_cap", 0),
-                    "pe_ratio": price_data["price"] / fin_data["eps"] if fin_data.get("eps") and fin_data["eps"] > 0 else None,
+                    "pe_ratio": pe_ratio,
                     "profit_margin": fin_data.get("profit_margin_pct"),
                     "revenue": fin_data.get("revenue_billions"),
-                    "eps": fin_data.get("eps"),
+                    "eps": eps_annual,  # Show annualized EPS
+                    "eps_period": "TTM (est)" if fin_data.get("period") == "quarterly" else "Annual",
                 })
             except Exception as e:
                 print(f"⚠️ Could not get data for {t}: {e}")

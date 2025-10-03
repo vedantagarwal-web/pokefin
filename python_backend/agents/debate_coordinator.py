@@ -544,17 +544,47 @@ Be objective. Consider:
         """Assess risks"""
         print(f"⚠️ Assessing risks...")
         
-        # Simple risk categorization for now
-        financials = signals.get("financial_metrics", {}) or signals.get("financials", {})
+        # Get calculated P/E from signals
+        financials = signals.get("financials", {})
+        metrics = signals.get("financial_metrics", {})
+        price_info = signals.get("price", {})
         
-        # Safely get PE ratio
-        pe_ratio = financials.get("pe_ratio", 0)
-        pe_ratio = pe_ratio if pe_ratio is not None else 0
+        # Calculate annualized P/E
+        eps = financials.get("eps") or metrics.get("eps")
+        if eps and financials.get("period") == "quarterly":
+            eps_annual = eps * 4
+        else:
+            eps_annual = eps
+        
+        pe_ratio = None
+        if eps_annual and eps_annual > 0 and price_info.get("price"):
+            pe_ratio = price_info["price"] / eps_annual
+        
+        # Better P/E risk thresholds
+        # < 15: LOW, 15-30: MEDIUM, 30-50: HIGH, > 50: VERY HIGH, > 100: EXTREME
+        valuation_risk = "LOW"
+        if pe_ratio:
+            if pe_ratio > 100:
+                valuation_risk = "EXTREME"
+            elif pe_ratio > 50:
+                valuation_risk = "VERY HIGH"
+            elif pe_ratio > 30:
+                valuation_risk = "HIGH"
+            elif pe_ratio > 15:
+                valuation_risk = "MEDIUM"
+        
+        # Assess volatility from price change
+        day_change_pct = abs(price_info.get("day_change_percent", 0) or 0)
+        volatility_risk = "HIGH" if day_change_pct > 5 else "MEDIUM" if day_change_pct > 2 else "LOW"
+        
+        # Market risk - use conviction score
+        market_risk = "HIGH" if conviction < 4 else "MEDIUM" if conviction < 7 else "LOW"
         
         risks = {
-            "valuation_risk": "HIGH" if pe_ratio > 40 else "MEDIUM" if pe_ratio > 25 else "LOW",
-            "volatility_risk": "MEDIUM",  # Would calculate from price history
-            "market_risk": "MEDIUM",  # Would assess market conditions
+            "valuation_risk": valuation_risk,
+            "pe_ratio": pe_ratio,  # Include actual P/E for reference
+            "volatility_risk": volatility_risk,
+            "market_risk": market_risk,
         }
         
         return risks
@@ -705,8 +735,15 @@ Be objective. Consider:
         # Calculate P/E if we have price and EPS
         pe_ratio = None
         eps = financials.get("eps") or metrics.get("eps")
-        if eps and eps > 0 and price_data.get("current_price"):
-            pe_ratio = price_data["current_price"] / eps
+        
+        # Annualize EPS if quarterly data
+        if eps and financials.get("period") == "quarterly":
+            eps_annual = eps * 4
+        else:
+            eps_annual = eps
+        
+        if eps_annual and eps_annual > 0 and price_data.get("current_price"):
+            pe_ratio = price_data["current_price"] / eps_annual
         
         data["fundamentals"] = {
             "pe_ratio": pe_ratio or metrics.get("pe_ratio"),
@@ -714,7 +751,8 @@ Be objective. Consider:
             "revenue_growth": metrics.get("revenue_growth") or financials.get("revenue_growth"),
             "debt_to_equity": metrics.get("debt_to_equity") or financials.get("debt_to_equity"),
             "roe": metrics.get("roe") or financials.get("roe"),
-            "eps": eps,
+            "eps": eps_annual if eps_annual else eps,  # Store annualized EPS
+            "eps_period": "TTM (est)" if financials.get("period") == "quarterly" else "Annual",
             "market_cap": price_data.get("market_cap") or metrics.get("market_cap"),
             "revenue": financials.get("revenue") or financials.get("revenue_billions") * 1e9 if financials.get("revenue_billions") else None,
             "net_income": financials.get("net_income") or financials.get("net_income_billions") * 1e9 if financials.get("net_income_billions") else None,
