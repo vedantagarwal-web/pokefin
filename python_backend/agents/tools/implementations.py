@@ -1911,6 +1911,7 @@ async def run_deep_research(ticker: str, mode: str = "standard") -> Dict[str, An
         # Import here to avoid circular imports
         from agents.debate_coordinator import DebateCoordinator
         from agents.research_config import get_config
+        import httpx
         
         # Get config for mode
         config = get_config(mode)
@@ -1921,10 +1922,78 @@ async def run_deep_research(ticker: str, mode: str = "standard") -> Dict[str, An
         # Run full research with debate
         report = await coordinator.research_stock(ticker)
         
+        # Save to research API for whiteboard access
+        try:
+            async with httpx.AsyncClient() as client:
+                await client.post(
+                    "http://localhost:8788/api/research/save",
+                    json=report,
+                    timeout=5.0
+                )
+            print(f"✅ Research data saved for whiteboard access")
+        except Exception as save_err:
+            print(f"⚠️ Could not save research data: {save_err}")
+        
         return report
     
     except Exception as e:
         print(f"❌ Error running deep research: {e}")
         import traceback
         traceback.print_exc()
+        return {"error": str(e), "ticker": ticker}
+
+
+# ============================================================================
+# PEER COMPARISON & COMPETITIVE ANALYSIS
+# ============================================================================
+
+@register_tool("get_peer_comparison")
+async def get_peer_comparison(ticker: str, peers: List[str] = None) -> Dict[str, Any]:
+    """
+    Get peer comparison showing how the company stacks up against competitors.
+    Compares valuation, growth, profitability across peer group.
+    """
+    try:
+        print(f"📊 Getting peer comparison for {ticker}...")
+        
+        # Default peers by sector
+        sector_peers = {
+            "TSLA": ["RIVN", "LCID", "F", "GM"],
+            "NVDA": ["AMD", "INTC", "QCOM", "AVGO"],
+            "AAPL": ["MSFT", "GOOGL", "META", "AMZN"],
+            "MSFT": ["AAPL", "GOOGL", "AMZN", "META"],
+        }
+        
+        if not peers:
+            peers = sector_peers.get(ticker, [])
+        
+        # Gather data for main ticker and peers
+        all_tickers = [ticker] + peers
+        comparison_data = []
+        
+        for t in all_tickers[:5]:  # Limit to 5 total
+            try:
+                price_data = await get_stock_price(ticker=t, include_chart=False)
+                fin_data = await get_financials(ticker=t)
+                
+                comparison_data.append({
+                    "ticker": t,
+                    "price": price_data.get("price", 0),
+                    "market_cap": price_data.get("market_cap", 0),
+                    "pe_ratio": price_data["price"] / fin_data["eps"] if fin_data.get("eps") and fin_data["eps"] > 0 else None,
+                    "profit_margin": fin_data.get("profit_margin_pct"),
+                    "revenue": fin_data.get("revenue_billions"),
+                    "eps": fin_data.get("eps"),
+                })
+            except Exception as e:
+                print(f"⚠️ Could not get data for {t}: {e}")
+        
+        return {
+            "ticker": ticker,
+            "peers": peers,
+            "comparison": comparison_data
+        }
+    
+    except Exception as e:
+        print(f"❌ Error in peer comparison: {e}")
         return {"error": str(e), "ticker": ticker}

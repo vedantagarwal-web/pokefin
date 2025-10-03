@@ -304,6 +304,27 @@ async def delete_session(session_id: str):
     await session_manager.delete_session(session_id)
     return {"status": "deleted", "session_id": session_id}
 
+# Research storage (in-memory for now, will move to Supabase)
+research_store = {}
+
+@app.post("/api/research/save")
+async def save_research(data: dict):
+    """Save research report for whiteboard access"""
+    ticker = data.get("ticker")
+    if not ticker:
+        raise HTTPException(status_code=400, detail="Ticker required")
+    
+    research_store[ticker] = data
+    return {"status": "saved", "ticker": ticker}
+
+@app.get("/api/research/{ticker}")
+async def get_research(ticker: str):
+    """Get research report for whiteboard"""
+    if ticker not in research_store:
+        raise HTTPException(status_code=404, detail=f"No research found for {ticker}")
+    
+    return research_store[ticker]
+
 if __name__ == "__main__":
     import uvicorn
     

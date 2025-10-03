@@ -95,11 +95,14 @@ class DebateCoordinator:
         # Parallel signal gathering
         signal_tasks = []
         
-        # Always gather these
+        # Always gather these - comprehensive data like TradingAgents
         signal_tasks.extend([
-            self._call_tool("get_stock_price", {"ticker": ticker}),
+            self._call_tool("get_stock_price", {"ticker": ticker, "include_chart": False}),
             self._call_tool("get_financial_metrics", {"ticker": ticker}),
+            self._call_tool("get_financials", {"ticker": ticker}),  # Add actual financial statements
             self._call_tool("get_company_news", {"ticker": ticker, "limit": 10}),
+            self._call_tool("get_analyst_ratings", {"ticker": ticker}),  # Add analyst ratings
+            self._call_tool("get_peer_comparison", {"ticker": ticker}),  # Add peer comparison
         ])
         
         # Conditional based on config
@@ -125,12 +128,15 @@ class DebateCoordinator:
         signals = {
             "ticker": ticker,
             "price": results[0] if len(results) > 0 else None,
-            "financials": results[1] if len(results) > 1 else None,
-            "news": results[2] if len(results) > 2 else None,
+            "financial_metrics": results[1] if len(results) > 1 else None,
+            "financials": results[2] if len(results) > 2 else None,  # Actual financial statements
+            "news": results[3] if len(results) > 3 else None,
+            "analyst_ratings": results[4] if len(results) > 4 else None,
+            "peer_comparison": results[5] if len(results) > 5 else None,
         }
         
         # Add optional signals
-        idx = 3
+        idx = 6  # Start after base signals
         if self.config.get("use_reddit") and idx < len(results):
             signals["reddit_sentiment"] = results[idx]
             idx += 1
@@ -164,7 +170,8 @@ class DebateCoordinator:
     
     def _quick_fundamental_score(self, signals: Dict) -> float:
         """Quick fundamental scoring (0-10)"""
-        financials = signals.get("financials", {})
+        # Check both financial_metrics and financials
+        financials = signals.get("financial_metrics", {}) or signals.get("financials", {})
         if not financials or "error" in financials:
             return 5.0
         
@@ -538,7 +545,7 @@ Be objective. Consider:
         print(f"⚠️ Assessing risks...")
         
         # Simple risk categorization for now
-        financials = signals.get("financials", {})
+        financials = signals.get("financial_metrics", {}) or signals.get("financials", {})
         
         # Safely get PE ratio
         pe_ratio = financials.get("pe_ratio", 0)
@@ -595,6 +602,9 @@ Be objective. Consider:
         
         upside = ((target_price - current_price) / current_price * 100) if current_price > 0 else 0
         
+        # Extract complete data for display
+        complete_data = self._extract_complete_data(signals)
+        
         report = {
             "ticker": ticker,
             "recommendation": action,  # For compatibility
@@ -607,6 +617,14 @@ Be objective. Consider:
             # Simple view
             "headline": headline,
             "key_thesis": headline,  # Alias for InteractionAgent
+            
+            # Comprehensive data (for InteractionAgent formatting)
+            "complete_data": complete_data,
+            "price_data": complete_data["price_data"],
+            "fundamentals": complete_data["fundamentals"],
+            "sentiment_data": complete_data["sentiment"],
+            "institutional_data": complete_data["institutional"],
+            "news_headlines": complete_data["news"],
             
             # Detailed view (whiteboard)
             "bull_case": bull_case,
@@ -657,6 +675,92 @@ Be objective. Consider:
                 summary["Unusual Activity"] = f"{unusual.get('bias', 'NEUTRAL')} - {', '.join(unusual.get('activity_type', []))}"
         
         return summary
+    
+    def _extract_complete_data(self, signals: Dict) -> Dict[str, Any]:
+        """Extract ALL data from signals for comprehensive display"""
+        data = {
+            "price_data": {},
+            "fundamentals": {},
+            "sentiment": {},
+            "institutional": {},
+            "news": []
+        }
+        
+        # Price & Volume data
+        if "price" in signals and signals["price"]:
+            price_info = signals["price"]
+            data["price_data"] = {
+                "current_price": price_info.get("price"),
+                "day_change": price_info.get("day_change"),
+                "day_change_pct": price_info.get("day_change_percent"),
+                "volume": price_info.get("volume"),
+                "market_cap": price_info.get("market_cap")
+            }
+        
+        # Fundamentals from both sources - PRIORITIZE financials as metrics often returns None
+        metrics = signals.get("financial_metrics") or {}
+        financials = signals.get("financials") or {}
+        price_data = data.get("price_data", {})
+        
+        # Calculate P/E if we have price and EPS
+        pe_ratio = None
+        eps = financials.get("eps") or metrics.get("eps")
+        if eps and eps > 0 and price_data.get("current_price"):
+            pe_ratio = price_data["current_price"] / eps
+        
+        data["fundamentals"] = {
+            "pe_ratio": pe_ratio or metrics.get("pe_ratio"),
+            "profit_margin": financials.get("profit_margin_pct") or metrics.get("profit_margin") or financials.get("net_margin"),
+            "revenue_growth": metrics.get("revenue_growth") or financials.get("revenue_growth"),
+            "debt_to_equity": metrics.get("debt_to_equity") or financials.get("debt_to_equity"),
+            "roe": metrics.get("roe") or financials.get("roe"),
+            "eps": eps,
+            "market_cap": price_data.get("market_cap") or metrics.get("market_cap"),
+            "revenue": financials.get("revenue") or financials.get("revenue_billions") * 1e9 if financials.get("revenue_billions") else None,
+            "net_income": financials.get("net_income") or financials.get("net_income_billions") * 1e9 if financials.get("net_income_billions") else None,
+            "gross_profit": financials.get("gross_profit"),
+            "operating_income": financials.get("operating_income"),
+            "total_assets": financials.get("total_assets"),
+            "total_debt": financials.get("total_debt"),
+        }
+        
+        # Store full financial statements for whiteboard
+        if financials:
+            data["financial_statements"] = {
+                "income_statement": financials.get("income_statement", {}),
+                "balance_sheet": financials.get("balance_sheet", {}),
+                "cash_flow": financials.get("cash_flow", {})
+            }
+        
+        # Store analyst ratings
+        if "analyst_ratings" in signals and signals["analyst_ratings"]:
+            data["analyst_ratings"] = signals["analyst_ratings"]
+        
+        # Store peer comparison
+        if "peer_comparison" in signals and signals["peer_comparison"]:
+            data["peer_comparison"] = signals["peer_comparison"]
+        
+        # Social sentiment
+        if "reddit_sentiment" in signals:
+            data["sentiment"]["reddit"] = signals["reddit_sentiment"]
+        if "twitter_sentiment" in signals:
+            data["sentiment"]["twitter"] = signals["twitter_sentiment"]
+        
+        # Institutional
+        if "institutional_activity" in signals:
+            data["institutional"]["13f"] = signals["institutional_activity"]
+        if "insider_trades" in signals:
+            data["institutional"]["insider"] = signals["insider_trades"]
+        if "unusual_activity" in signals:
+            data["institutional"]["unusual"] = signals["unusual_activity"]
+        
+        # News
+        if "news" in signals and signals["news"]:
+            news_data = signals["news"]
+            if isinstance(news_data, dict) and "news" in news_data:
+                data["news"] = news_data["news"][:5]  # Top 5
+        
+        return data
     
     def _format_signals_for_prompt(self, signals: Dict) -> str:
         """Format signals for LLM prompt"""

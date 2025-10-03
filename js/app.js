@@ -72,6 +72,112 @@ function renderMessage(msg) {
   bubble.innerHTML = linkifyText(msg.text);
   row.appendChild(bubble);
 
+  // Check if this is a research recommendation (contains "Recommendation:" or "Conviction:")
+  if (msg.role === 'assistant' && msg.text && (msg.text.includes('🎯 Recommendation:') || msg.text.includes('Conviction:'))) {
+    // Try to extract ticker from message - look for pattern like "TSLA" or "on TSLA"
+    const tickerMatch = msg.text.match(/(?:on |research on |deep research on |for )([A-Z]{2,5})\b/i) || msg.text.match(/\b([A-Z]{2,5})\b/);
+    if (tickerMatch) {
+      const ticker = tickerMatch[1].toUpperCase();
+      
+      // Parse the research data from the message text
+      const researchData = parseResearchData(msg.text, ticker);
+      
+      // Save research data to localStorage
+      localStorage.setItem(`research_${ticker}`, JSON.stringify(researchData));
+      localStorage.setItem(`has_research_${ticker}`, 'true');
+      
+      console.log(`📋 Saved research data for ${ticker}`);
+      
+      // Add whiteboard button
+      const whiteboardBtn = document.createElement('button');
+      whiteboardBtn.textContent = '📋 Open Whiteboard';
+      whiteboardBtn.className = 'whiteboard-btn';
+      whiteboardBtn.onclick = () => window.open(`whiteboard.html?ticker=${ticker}`, '_blank');
+      row.appendChild(whiteboardBtn);
+    }
+  }
+  
+  function parseResearchData(text, ticker) {
+    // Extract key data from the formatted text
+    const data = { ticker };
+    
+    // Extract recommendation
+    const recMatch = text.match(/🎯 Recommendation:\s*(\w+)/);
+    if (recMatch) data.action = recMatch[1];
+    
+    // Extract conviction
+    const convMatch = text.match(/Conviction:\s*(\d+)\/10/);
+    if (convMatch) data.conviction = parseInt(convMatch[1]);
+    
+    // Extract prices
+    const priceMatch = text.match(/Price:\s*\$?([\d.]+)\s*→\s*\$?([\d.]+)\s*\(([+-]?[\d.]+)%\)/);
+    if (priceMatch) {
+      data.current_price = parseFloat(priceMatch[1]);
+      data.target_price = parseFloat(priceMatch[2]);
+      data.upside_pct = parseFloat(priceMatch[3]);
+    }
+    
+    // Extract key thesis
+    const thesisMatch = text.match(/💡 Key Thesis:\s*([^\n]+)/);
+    if (thesisMatch) data.key_thesis = thesisMatch[1];
+    
+    // Extract data sections with improved regex
+    const sections = {
+      price_data: {},
+      fundamentals: {},
+      sentiment_data: {},
+      news_headlines: []
+    };
+    
+    // Parse market data
+    const marketDataMatch = text.match(/📊 Market Data:[\s\S]*?(?=📊|✅|⚠️|🎯|$)/);
+    if (marketDataMatch) {
+      const marketText = marketDataMatch[0];
+      const priceMatch2 = marketText.match(/Current Price:\s*\$?([\d.,]+)/);
+      if (priceMatch2) sections.price_data.current_price = parseFloat(priceMatch2[1].replace(/,/g, ''));
+      
+      const marketCapMatch = marketText.match(/Market Cap:\s*\$?([\d.]+)([BMT])/);
+      if (marketCapMatch) {
+        let cap = parseFloat(marketCapMatch[1]);
+        const unit = marketCapMatch[2];
+        if (unit === 'T') cap *= 1e12;
+        else if (unit === 'B') cap *= 1e9;
+        else if (unit === 'M') cap *= 1e6;
+        sections.price_data.market_cap = cap;
+      }
+    }
+    
+    // Parse fundamentals
+    const fundMatch = text.match(/P\/E Ratio:\s*([\d.]+)/);
+    if (fundMatch) sections.fundamentals.pe_ratio = parseFloat(fundMatch[1]);
+    
+    const marginMatch = text.match(/Profit Margin:\s*([\d.]+)%/);
+    if (marginMatch) sections.fundamentals.profit_margin = parseFloat(marginMatch[1]);
+    
+    const growthMatch = text.match(/Revenue Growth:\s*([\d.]+)%/);
+    if (growthMatch) sections.fundamentals.revenue_growth = parseFloat(growthMatch[1]);
+    
+    // Parse social sentiment
+    const redditMatch = text.match(/Reddit:\s*([A-Z\s]+)\s*\((\d+)% bullish,\s*(\d+) mentions\)/);
+    if (redditMatch) {
+      sections.sentiment_data.reddit = {
+        sentiment_label: redditMatch[1].trim(),
+        sentiment_score: parseInt(redditMatch[2]) / 100,
+        mention_volume: parseInt(redditMatch[3])
+      };
+    }
+    
+    const twitterMatch = text.match(/Twitter:\s*([A-Z\s]+)\s*\((\d+)% bullish/);
+    if (twitterMatch) {
+      sections.sentiment_data.twitter = {
+        sentiment_label: twitterMatch[1].trim(),
+        sentiment_score: parseInt(twitterMatch[2]) / 100
+      };
+    }
+    
+    return { ...data, ...sections };
+  }
+
   // Render charts if present
   if (msg.charts && msg.charts.length > 0) {
     console.log('📊 Rendering', msg.charts.length, 'chart(s)');
