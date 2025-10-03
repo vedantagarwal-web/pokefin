@@ -6,6 +6,11 @@
     <title>Orthogonal — Institutional-Grade AI Research</title>
     <meta name="description" content="Multi-agent AI system for deep equity research. Bloomberg-level analysis, powered by AI." />
     <link rel="stylesheet" href="styles.css" />
+    
+    <!-- TradingView Widgets -->
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js"></script>
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-hotlists.js"></script>
   </head>
   <body class="landing">
     <!-- Navigation -->
@@ -41,6 +46,122 @@
         <div class="hero-badge">
           <span class="badge-icon">⊥</span>
           <span class="badge-text">Independent. Contrarian. Orthogonal.</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ticker Tape -->
+    <section style="background: var(--color-surface); padding: 0; margin: 48px 0;">
+      <div class="tradingview-widget-container">
+        <div class="tradingview-widget-container__widget"></div>
+        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+        {
+          "symbols": [
+            {"proName": "NASDAQ:AAPL", "title": "Apple"},
+            {"proName": "NASDAQ:MSFT", "title": "Microsoft"},
+            {"proName": "NASDAQ:TSLA", "title": "Tesla"},
+            {"proName": "NASDAQ:NVDA", "title": "NVIDIA"},
+            {"proName": "NASDAQ:AMZN", "title": "Amazon"},
+            {"proName": "NASDAQ:GOOGL", "title": "Google"},
+            {"proName": "NASDAQ:META", "title": "Meta"},
+            {"proName": "NASDAQ:NFLX", "title": "Netflix"}
+          ],
+          "showSymbolLogo": true,
+          "colorTheme": "dark",
+          "isTransparent": false,
+          "displayMode": "adaptive",
+          "locale": "en"
+        }
+        </script>
+      </div>
+    </section>
+
+    <!-- Market Overview -->
+    <section style="background: var(--color-background); padding: 80px 0;">
+      <div class="container" style="max-width: 1200px; margin: 0 auto; padding: 0 24px;">
+        <h2 class="section-title">Live Market Data</h2>
+        <p class="section-subtitle" style="margin-bottom: 48px;">Real-time quotes powered by TradingView</p>
+        
+        <!-- Market Overview Widget -->
+        <div class="tradingview-widget-container" style="margin-bottom: 64px;">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-market-overview.js" async>
+          {
+            "colorTheme": "dark",
+            "dateRange": "12M",
+            "showChart": true,
+            "locale": "en",
+            "width": "100%",
+            "height": "400",
+            "largeChartUrl": "",
+            "isTransparent": false,
+            "showSymbolLogo": true,
+            "showFloatingTooltip": false,
+            "plotLineColorGrowing": "rgba(0, 113, 227, 1)",
+            "plotLineColorFalling": "rgba(255, 69, 58, 1)",
+            "gridLineColor": "rgba(42, 46, 57, 0.5)",
+            "scaleFontColor": "rgba(134, 137, 147, 1)",
+            "belowLineFillColorGrowing": "rgba(0, 113, 227, 0.12)",
+            "belowLineFillColorFalling": "rgba(255, 69, 58, 0.12)",
+            "belowLineFillColorGrowingBottom": "rgba(0, 113, 227, 0)",
+            "belowLineFillColorFallingBottom": "rgba(255, 69, 58, 0)",
+            "symbolActiveColor": "rgba(0, 113, 227, 0.12)",
+            "tabs": [
+              {"title": "Indices", "symbols": [
+                {"s": "SP:SPX", "d": "S&P 500"},
+                {"s": "NASDAQ:IXIC", "d": "Nasdaq"},
+                {"s": "DJ:DJI", "d": "Dow Jones"},
+                {"s": "RUSSELL:RUT", "d": "Russell 2000"}
+              ]},
+              {"title": "Tech", "symbols": [
+                {"s": "NASDAQ:AAPL"},
+                {"s": "NASDAQ:MSFT"},
+                {"s": "NASDAQ:GOOGL"},
+                {"s": "NASDAQ:META"},
+                {"s": "NASDAQ:NVDA"},
+                {"s": "NASDAQ:TSLA"}
+              ]},
+              {"title": "Crypto", "symbols": [
+                {"s": "BITSTAMP:BTCUSD", "d": "Bitcoin"},
+                {"s": "BITSTAMP:ETHUSD", "d": "Ethereum"},
+                {"s": "BINANCE:SOLUSD", "d": "Solana"}
+              ]}
+            ]
+          }
+          </script>
+        </div>
+
+        <!-- Hot Lists Widget -->
+        <div>
+          <h3 class="section-title" style="font-size: 24px; margin-bottom: 16px;">Market Movers</h3>
+          <p class="section-subtitle" style="margin-bottom: 24px;">Top gainers, losers, and most active stocks</p>
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-hotlists.js" async>
+            {
+              "colorTheme": "dark",
+              "dateRange": "1D",
+              "exchange": "US",
+              "showChart": true,
+              "locale": "en",
+              "width": "100%",
+              "height": "500",
+              "largeChartUrl": "",
+              "isTransparent": false,
+              "showSymbolLogo": false,
+              "showFloatingTooltip": false,
+              "plotLineColorGrowing": "rgba(0, 113, 227, 1)",
+              "plotLineColorFalling": "rgba(255, 69, 58, 1)",
+              "gridLineColor": "rgba(42, 46, 57, 0.5)",
+              "scaleFontColor": "rgba(134, 137, 147, 1)",
+              "belowLineFillColorGrowing": "rgba(0, 113, 227, 0.12)",
+              "belowLineFillColorFalling": "rgba(255, 69, 58, 0.12)",
+              "belowLineFillColorGrowingBottom": "rgba(0, 113, 227, 0)",
+              "belowLineFillColorFallingBottom": "rgba(255, 69, 58, 0)",
+              "symbolActiveColor": "rgba(0, 113, 227, 0.12)"
+            }
+            </script>
+          </div>
         </div>
       </div>
     </section>

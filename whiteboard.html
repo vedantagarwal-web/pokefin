@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orthogonal Research Terminal</title>
   <link rel="stylesheet" href="styles.css">
+  
+  <!-- TradingView Widgets -->
+  <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 </head>
 <body class="whiteboard">
   <!-- Header -->
@@ -114,14 +117,19 @@
         </div>
 
         ${renderMarketData(data)}
+        ${renderTradingViewChart(data)}
         ${renderFundamentals(data)}
+        ${renderTechnicalAnalysisWidget(data)}
         ${renderHistoricalCharts(data)}
         ${renderPeerComparison(data)}
+        ${renderFundamentalDataWidget(data)}
         ${renderFinancialStatements(data)}
         ${renderBalanceSheet(data)}
         ${renderCashFlow(data)}
+        ${renderCompanyProfileWidget(data)}
         ${renderSECFilings(data)}
         ${renderEarningsHighlights(data)}
+        ${renderTopStoriesWidget(data)}
         ${renderSocialSentiment(data)}
         ${renderInstitutional(data)}
         ${renderNews(data)}
@@ -585,6 +593,142 @@
                 `).join('')}
               </div>
             ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    // TradingView Widgets
+    function renderTradingViewChart(data) {
+      const ticker = data.ticker || 'TSLA';
+      
+      return `
+        <div class="section">
+          <h3>📈 Advanced Chart</h3>
+          <div class="tradingview-widget-container" style="height: 500px;">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js" async>
+            {
+              "autosize": true,
+              "symbol": "NASDAQ:${ticker}",
+              "interval": "D",
+              "timezone": "Etc/UTC",
+              "theme": "dark",
+              "style": "1",
+              "locale": "en",
+              "backgroundColor": "rgba(0, 0, 0, 1)",
+              "gridColor": "rgba(42, 46, 57, 0.5)",
+              "enable_publishing": false,
+              "hide_top_toolbar": false,
+              "hide_legend": false,
+              "save_image": false,
+              "studies": ["STD;SMA"]
+            }
+            </script>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTechnicalAnalysisWidget(data) {
+      const ticker = data.ticker || 'TSLA';
+      
+      return `
+        <div class="section">
+          <h3>🎯 Technical Analysis</h3>
+          <div style="font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 12px;">Real-time technical indicators and signals</div>
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-technical-analysis.js" async>
+            {
+              "interval": "1D",
+              "width": "100%",
+              "isTransparent": false,
+              "height": "400",
+              "symbol": "NASDAQ:${ticker}",
+              "showIntervalTabs": true,
+              "displayMode": "multiple",
+              "locale": "en",
+              "colorTheme": "dark"
+            }
+            </script>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFundamentalDataWidget(data) {
+      const ticker = data.ticker || 'TSLA';
+      
+      return `
+        <div class="section">
+          <h3>💼 Fundamental Data (TradingView)</h3>
+          <div style="font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 12px;">Key financial metrics and valuation</div>
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-financials.js" async>
+            {
+              "colorTheme": "dark",
+              "isTransparent": false,
+              "largeChartUrl": "",
+              "displayMode": "regular",
+              "width": "100%",
+              "height": 400,
+              "symbol": "NASDAQ:${ticker}",
+              "locale": "en"
+            }
+            </script>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCompanyProfileWidget(data) {
+      const ticker = data.ticker || 'TSLA';
+      
+      return `
+        <div class="section">
+          <h3>🏢 Company Profile</h3>
+          <div style="font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 12px;">Company information and statistics</div>
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-profile.js" async>
+            {
+              "colorTheme": "dark",
+              "isTransparent": false,
+              "largeChartUrl": "",
+              "width": "100%",
+              "height": 400,
+              "symbol": "NASDAQ:${ticker}",
+              "locale": "en"
+            }
+            </script>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTopStoriesWidget(data) {
+      const ticker = data.ticker || 'TSLA';
+      
+      return `
+        <div class="section">
+          <h3>📰 Latest News & Updates (TradingView)</h3>
+          <div style="font-size: 12px; color: var(--color-text-tertiary); margin-bottom: 12px;">Real-time news and market updates</div>
+          <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+            {
+              "feedMode": "symbol",
+              "symbol": "NASDAQ:${ticker}",
+              "colorTheme": "dark",
+              "isTransparent": false,
+              "displayMode": "regular",
+              "width": "100%",
+              "height": 400,
+              "locale": "en"
+            }
+            </script>
           </div>
         </div>
       `;

@@ -6,6 +6,9 @@
     <title>Orthogonal Terminal</title>
     <meta name="description" content="Institutional-grade AI research terminal" />
     <link rel="stylesheet" href="styles.css" />
+    
+    <!-- TradingView Ticker Tape -->
+    <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js"></script>
   </head>
   <body>
     <div class="app">
@@ -19,6 +22,32 @@
           <button id="resetBtn" title="Reset conversation">Reset</button>
         </div>
       </header>
+
+      <!-- Ticker Tape -->
+      <div class="ticker-tape-container">
+        <div class="tradingview-widget-container">
+          <div class="tradingview-widget-container__widget"></div>
+          <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-ticker-tape.js" async>
+          {
+            "symbols": [
+              {"proName": "NASDAQ:AAPL", "title": "Apple"},
+              {"proName": "NASDAQ:MSFT", "title": "Microsoft"},
+              {"proName": "NASDAQ:TSLA", "title": "Tesla"},
+              {"proName": "NASDAQ:NVDA", "title": "NVIDIA"},
+              {"proName": "NASDAQ:GOOGL", "title": "Google"},
+              {"proName": "NASDAQ:META", "title": "Meta"},
+              {"proName": "NASDAQ:AMZN", "title": "Amazon"},
+              {"proName": "SP:SPX", "title": "S&P 500"}
+            ],
+            "showSymbolLogo": true,
+            "colorTheme": "dark",
+            "isTransparent": false,
+            "displayMode": "compact",
+            "locale": "en"
+          }
+          </script>
+        </div>
+      </div>
 
       <main id="chat" class="chat" aria-live="polite" aria-label="Conversation">
         <!-- Messages will render here -->
