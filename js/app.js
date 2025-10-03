@@ -55,9 +55,16 @@ function linkifyText(text) {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
   
+  // Convert markdown formatting (simplified for browser compatibility)
+  let formatted = escaped
+    // Bold: **text** (must be converted BEFORE single *)
+    .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
+    // Inline code: `text`
+    .replace(/`([^`]+?)`/g, '<code style="background: var(--color-surface-elevated); padding: 2px 6px; border-radius: 4px; font-family: var(--font-mono); font-size: 13px;">$1</code>');
+  
   // Convert URLs to clickable links (styling handled by CSS)
   const urlPattern = /(https?:\/\/[^\s]+)/g;
-  const linked = escaped.replace(urlPattern, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  const linked = formatted.replace(urlPattern, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
   
   // Convert newlines to <br>
   return linked.replace(/\n/g, '<br>');
@@ -65,7 +72,7 @@ function linkifyText(text) {
 
 function renderMessage(msg) {
   const row = document.createElement('div');
-  row.className = `row ${msg.role === 'user' ? 'out' : 'in'}`;
+  row.className = `row ${msg.role}`;  // Use 'user' or 'assistant' directly
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
@@ -209,11 +216,13 @@ function renderMessage(msg) {
 
 function renderTyping() {
   const row = document.createElement('div');
-  row.className = 'row in';
+  row.className = 'row assistant';  // Match CSS expectations
   row.dataset.typing = '1';
 
   const bubble = document.createElement('div');
-  bubble.className = 'bubble';
+  bubble.className = 'bubble typing-bubble';
+  
+  // Create animated dots
   const wrap = document.createElement('div');
   wrap.className = 'typing';
   for (let i = 0; i < 3; i++) {
@@ -221,6 +230,7 @@ function renderTyping() {
     dot.className = 'dot';
     wrap.appendChild(dot);
   }
+  
   bubble.appendChild(wrap);
   row.appendChild(bubble);
   chatEl.appendChild(row);
@@ -242,7 +252,7 @@ function scrollToBottom() {
 function bootstrapIfEmpty() {
   if (state.messages.length === 0) {
     addMessage('assistant',
-      "Hey! I’m Pokefin. I keep things simple and actionable. What’s your first name and how comfortable do you feel with risk — cautious, balanced, or bold?");
+      "Welcome to Orthogonal. Ask me about any stock for institutional-grade analysis.\n\nTry: 'Should I buy Tesla?' or 'Compare NVDA vs AMD'");
   } else {
     renderAll();
   }
@@ -273,7 +283,7 @@ async function onSend() {
   } catch (err) {
     console.error(err);
     clearTyping();
-    addMessage('assistant', "Oops, I hit a snag. Mind trying that again?");
+    addMessage('assistant', "Error processing your request. Please try again or rephrase your question.");
   } finally {
     setSending(false);
   }

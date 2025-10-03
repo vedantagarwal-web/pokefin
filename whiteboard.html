@@ -115,9 +115,13 @@
 
         ${renderMarketData(data)}
         ${renderFundamentals(data)}
+        ${renderHistoricalCharts(data)}
         ${renderPeerComparison(data)}
         ${renderFinancialStatements(data)}
+        ${renderBalanceSheet(data)}
+        ${renderCashFlow(data)}
         ${renderSECFilings(data)}
+        ${renderEarningsHighlights(data)}
         ${renderSocialSentiment(data)}
         ${renderInstitutional(data)}
         ${renderNews(data)}
@@ -421,6 +425,164 @@
                 <div style="font-size: 14px; font-weight: 700; color: var(--color-accent); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Judge Verdict</div>
                 <div style="font-size: 16px; margin-bottom: 8px;"><strong>Winner:</strong> ${debate.winner === 'bull' ? '🐂 Bull' : '🐻 Bear'} (${debate.confidence}% confidence)</div>
                 <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-secondary);">${debate.reasoning || ''}</p>
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderHistoricalCharts(data) {
+      const historical = data.historical_financials || data.signals?.historical_financials;
+      if (!historical || !historical.periods || historical.periods.length === 0) return '';
+      
+      return `
+        <div class="section">
+          <h3>📈 Historical Trends</h3>
+          <div style="margin-bottom: 24px;">
+            <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Revenue & Income (Last 8 Quarters)</div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th style="text-align: right;">Revenue</th>
+                  <th style="text-align: right;">Net Income</th>
+                  <th style="text-align: right;">Gross Margin</th>
+                  <th style="text-align: right;">Op. Margin</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${historical.periods.map(p => `
+                  <tr>
+                    <td>${p.period}</td>
+                    <td style="text-align: right;">${formatLargeNumber(p.revenue)}</td>
+                    <td style="text-align: right;">${formatLargeNumber(p.net_income)}</td>
+                    <td style="text-align: right;">${p.gross_margin ? p.gross_margin.toFixed(1) + '%' : 'N/A'}</td>
+                    <td style="text-align: right;">${p.operating_margin ? p.operating_margin.toFixed(1) + '%' : 'N/A'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBalanceSheet(data) {
+      const balanceSheet = data.balance_sheet || data.signals?.balance_sheet;
+      if (!balanceSheet) return '';
+      
+      return `
+        <div class="section">
+          <h3>💼 Balance Sheet</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+            <div>
+              <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Assets</div>
+              <table class="table">
+                <tbody>
+                  ${balanceSheet.assets?.total_assets ? `<tr><td>Total Assets</td><td style="text-align: right;">${formatLargeNumber(balanceSheet.assets.total_assets)}</td></tr>` : ''}
+                  ${balanceSheet.assets?.current_assets ? `<tr><td>Current Assets</td><td style="text-align: right;">${formatLargeNumber(balanceSheet.assets.current_assets)}</td></tr>` : ''}
+                  ${balanceSheet.assets?.cash_and_equivalents ? `<tr><td>Cash & Equivalents</td><td style="text-align: right;">${formatLargeNumber(balanceSheet.assets.cash_and_equivalents)}</td></tr>` : ''}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Liabilities & Equity</div>
+              <table class="table">
+                <tbody>
+                  ${balanceSheet.liabilities?.total_liabilities ? `<tr><td>Total Liabilities</td><td style="text-align: right;">${formatLargeNumber(balanceSheet.liabilities.total_liabilities)}</td></tr>` : ''}
+                  ${balanceSheet.liabilities?.long_term_debt ? `<tr><td>Long-term Debt</td><td style="text-align: right;">${formatLargeNumber(balanceSheet.liabilities.long_term_debt)}</td></tr>` : ''}
+                  ${balanceSheet.equity?.total_equity ? `<tr><td>Total Equity</td><td style="text-align: right;">${formatLargeNumber(balanceSheet.equity.total_equity)}</td></tr>` : ''}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCashFlow(data) {
+      const cashFlow = data.cash_flow || data.signals?.cash_flow;
+      if (!cashFlow) return '';
+      
+      return `
+        <div class="section">
+          <h3>💰 Cash Flow Statement</h3>
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;">
+            <div>
+              <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Operating</div>
+              <table class="table">
+                <tbody>
+                  ${cashFlow.operating_activities?.net_income ? `<tr><td>Net Income</td><td style="text-align: right;">${formatLargeNumber(cashFlow.operating_activities.net_income)}</td></tr>` : ''}
+                  ${cashFlow.operating_activities?.operating_cash_flow ? `<tr><td>Operating CF</td><td style="text-align: right;">${formatLargeNumber(cashFlow.operating_activities.operating_cash_flow)}</td></tr>` : ''}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Investing</div>
+              <table class="table">
+                <tbody>
+                  ${cashFlow.investing_activities?.capex ? `<tr><td>CapEx</td><td style="text-align: right;">${formatLargeNumber(cashFlow.investing_activities.capex)}</td></tr>` : ''}
+                  ${cashFlow.investing_activities?.investing_cash_flow ? `<tr><td>Investing CF</td><td style="text-align: right;">${formatLargeNumber(cashFlow.investing_activities.investing_cash_flow)}</td></tr>` : ''}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px;">Financing</div>
+              <table class="table">
+                <tbody>
+                  ${cashFlow.financing_activities?.financing_cash_flow ? `<tr><td>Financing CF</td><td style="text-align: right;">${formatLargeNumber(cashFlow.financing_activities.financing_cash_flow)}</td></tr>` : ''}
+                  ${cashFlow.free_cash_flow ? `<tr><td><strong>Free Cash Flow</strong></td><td style="text-align: right;"><strong>${formatLargeNumber(cashFlow.free_cash_flow)}</strong></td></tr>` : ''}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEarningsHighlights(data) {
+      const earnings = data.earnings_highlights || data.signals?.earnings_highlights;
+      if (!earnings || !earnings.key_quotes) return '';
+      
+      return `
+        <div class="section">
+          <h3>🎙️ Earnings Call Highlights</h3>
+          <div style="margin-bottom: 24px;">
+            <div style="font-size: 12px; color: var(--color-text-tertiary); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 16px;">${earnings.latest_call || 'Latest Earnings Call'}</div>
+            
+            ${earnings.key_quotes && earnings.key_quotes.length > 0 ? `
+              <div style="margin-bottom: 24px;">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Key Management Quotes</div>
+                ${earnings.key_quotes.map(quote => `
+                  <div style="padding: 16px; background: var(--color-surface-elevated); border-left: 3px solid var(--color-accent); border-radius: 8px; margin-bottom: 12px;">
+                    <div style="font-size: 13px; font-weight: 600; color: var(--color-accent); margin-bottom: 8px;">${quote.speaker} - ${quote.context}</div>
+                    <p style="font-size: 14px; line-height: 1.6; color: var(--color-text-primary); font-style: italic;">"${quote.quote}"</p>
+                  </div>
+                `).join('')}
+              </div>
+            ` : ''}
+            
+            ${earnings.guidance ? `
+              <div style="margin-bottom: 24px;">
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Forward Guidance</div>
+                <div class="data-grid">
+                  ${earnings.guidance.revenue ? renderDataItem('Revenue', earnings.guidance.revenue) : ''}
+                  ${earnings.guidance.margins ? renderDataItem('Margins', earnings.guidance.margins) : ''}
+                  ${earnings.guidance.outlook ? `<div class="data-item"><div class="data-item-label">Outlook</div><div class="data-item-value" style="font-size: 14px;">${earnings.guidance.outlook}</div></div>` : ''}
+                </div>
+              </div>
+            ` : ''}
+            
+            ${earnings.analyst_questions && earnings.analyst_questions.length > 0 ? `
+              <div>
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Key Q&A</div>
+                ${earnings.analyst_questions.map(qa => `
+                  <div style="margin-bottom: 16px;">
+                    <div style="font-size: 13px; color: var(--color-text-tertiary); margin-bottom: 4px;">Q: ${qa.question}</div>
+                    <div style="font-size: 14px; color: var(--color-text-primary);">A: ${qa.answer}</div>
+                  </div>
+                `).join('')}
               </div>
             ` : ''}
           </div>

@@ -103,6 +103,10 @@ class DebateCoordinator:
             self._call_tool("get_company_news", {"ticker": ticker, "limit": 10}),
             self._call_tool("get_analyst_ratings", {"ticker": ticker}),  # Add analyst ratings
             self._call_tool("get_peer_comparison", {"ticker": ticker}),  # Add peer comparison
+            self._call_tool("get_historical_financials", {"ticker": ticker, "periods": 8}),  # Historical trends
+            self._call_tool("get_balance_sheet", {"ticker": ticker}),  # Balance sheet
+            self._call_tool("get_cash_flow", {"ticker": ticker}),  # Cash flow statement
+            self._call_tool("get_earnings_highlights", {"ticker": ticker}),  # Earnings insights
         ])
         
         # Conditional based on config
@@ -133,10 +137,14 @@ class DebateCoordinator:
             "news": results[3] if len(results) > 3 else None,
             "analyst_ratings": results[4] if len(results) > 4 else None,
             "peer_comparison": results[5] if len(results) > 5 else None,
+            "historical_financials": results[6] if len(results) > 6 else None,  # Historical trends
+            "balance_sheet": results[7] if len(results) > 7 else None,  # Balance sheet
+            "cash_flow": results[8] if len(results) > 8 else None,  # Cash flow
+            "earnings_highlights": results[9] if len(results) > 9 else None,  # Earnings insights
         }
         
         # Add optional signals
-        idx = 6  # Start after base signals
+        idx = 10  # Start after base signals
         if self.config.get("use_reddit") and idx < len(results):
             signals["reddit_sentiment"] = results[idx]
             idx += 1
@@ -777,6 +785,22 @@ Be objective. Consider:
         # Store peer comparison
         if "peer_comparison" in signals and signals["peer_comparison"]:
             data["peer_comparison"] = signals["peer_comparison"]
+        
+        # Store historical financials
+        if "historical_financials" in signals and signals["historical_financials"]:
+            data["historical_financials"] = signals["historical_financials"]
+        
+        # Store balance sheet
+        if "balance_sheet" in signals and signals["balance_sheet"]:
+            data["balance_sheet"] = signals["balance_sheet"]
+        
+        # Store cash flow
+        if "cash_flow" in signals and signals["cash_flow"]:
+            data["cash_flow"] = signals["cash_flow"]
+        
+        # Store earnings highlights
+        if "earnings_highlights" in signals and signals["earnings_highlights"]:
+            data["earnings_highlights"] = signals["earnings_highlights"]
         
         # Social sentiment
         if "reddit_sentiment" in signals:
