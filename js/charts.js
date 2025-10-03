@@ -88,51 +88,82 @@ class ChartManager {
    * Render comparison chart using TradingView widget
    */
   renderComparisonChart(containerId, chartData) {
+    console.log('📊 renderComparisonChart called:', containerId, chartData);
+    
     const container = document.getElementById(containerId);
     if (!container) {
-      console.error(`Container ${containerId} not found`);
+      console.error(`❌ Container ${containerId} not found`);
       return null;
     }
 
-    // Use TradingView comparison widget
+    console.log('✅ Container found, creating comparison chart...');
+
+    // Use TradingView's advanced chart with comparison
     const tickers = chartData.tickers || [];
-    const symbols = tickers.map(t => `{"symbol":"${t}"}`).join(',');
+    if (tickers.length === 0) {
+      console.error('❌ No tickers provided for comparison');
+      return null;
+    }
+
+    const mainSymbol = tickers[0];
+    const compareSymbols = tickers.slice(1).map(t => `"${t}"`).join(',');
     
-    container.innerHTML = `
-      <div class="tradingview-widget-container" style="height:100%;width:100%">
-        <div class="tradingview-widget-container__widget" style="height:calc(100% - 32px);width:100%"></div>
-        <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js" async>
-        {
-          "symbols": [${symbols}],
-          "chartOnly": false,
-          "width": "100%",
-          "height": "100%",
-          "locale": "en",
-          "colorTheme": "dark",
-          "autosize": true,
-          "showVolume": false,
-          "showMA": false,
-          "hideDateRanges": false,
-          "hideMarketStatus": false,
-          "hideSymbolLogo": false,
-          "scalePosition": "right",
-          "scaleMode": "Normal",
-          "fontFamily": "-apple-system, BlinkMacSystemFont, Trebuchet MS, Roboto, Ubuntu, sans-serif",
-          "fontSize": "10",
-          "noTimeScale": false,
-          "valuesTracking": "1",
-          "changeMode": "price-and-percent",
-          "chartType": "area",
-          "backgroundColor": "rgba(30, 34, 45, 1)",
-          "lineWidth": 2,
-          "lineType": 0,
-          "dateRanges": [
-            "12m|1D"
-          ]
-        }
-        </script>
-      </div>
-    `;
+    // Create widget container
+    const widgetContainer = document.createElement('div');
+    widgetContainer.className = 'tradingview-widget-container';
+    widgetContainer.style.cssText = 'height:100%;width:100%';
+    
+    const widgetDiv = document.createElement('div');
+    widgetDiv.className = 'tradingview-widget-container__widget';
+    widgetDiv.style.cssText = 'height:calc(100% - 32px);width:100%';
+    
+    // Create script element with comparison configuration
+    const script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = 'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+    script.async = true;
+    
+    // Build comparison studies string
+    const comparisonStudies = compareSymbols ? 
+      `"studies": [${compareSymbols.split(',').map((s, i) => 
+        `{"id":"Compare@tv-basicstudies","inputs":{"symbol":${s},"source":"close"}}`
+      ).join(',')}],` : '';
+    
+    script.innerHTML = JSON.stringify({
+      autosize: true,
+      symbol: mainSymbol,
+      interval: "D",
+      timezone: "Etc/UTC",
+      theme: "dark",
+      style: "1",
+      locale: "en",
+      enable_publishing: false,
+      hide_top_toolbar: false,
+      hide_legend: false,
+      save_image: false,
+      backgroundColor: "rgba(30, 34, 45, 1)",
+      gridColor: "rgba(43, 43, 67, 0.3)",
+      ...(compareSymbols && {
+        studies: tickers.slice(1).map(ticker => ({
+          id: "Compare@tv-basicstudies",
+          inputs: {
+            symbol: ticker,
+            source: "close"
+          }
+        }))
+      }),
+      support_host: "https://www.tradingview.com"
+    });
+    
+    // Assemble widget
+    widgetContainer.appendChild(widgetDiv);
+    widgetContainer.appendChild(script);
+    
+    // Clear container and add widget
+    container.innerHTML = '';
+    container.appendChild(widgetContainer);
+    
+    console.log('✅ TradingView comparison widget embedded for', tickers);
 
     this.charts.set(containerId, { type: 'tradingview-comparison', tickers });
     return container;
@@ -186,7 +217,7 @@ class ChartManager {
     const container = document.createElement('div');
     container.id = id;
     container.className = 'chart-container';
-    container.style.cssText = 'width: 100%; height: 500px; margin: 16px 0; border-radius: 8px; overflow: hidden; background: #1e222d;';
+    // Styling handled by CSS now
     return container;
   }
 

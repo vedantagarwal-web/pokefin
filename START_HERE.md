@@ -19,7 +19,7 @@ All keys are stored securely in `python_backend/.env`
 
 ### Option 1: Full System (Recommended)
 ```bash
-./start-full-system.sh
+x
 ```
 
 This starts both:

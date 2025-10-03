@@ -46,13 +46,30 @@ function renderAll() {
   scrollToBottom();
 }
 
+function linkifyText(text) {
+  // Escape HTML to prevent XSS
+  const escaped = text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+  
+  // Convert URLs to clickable links (styling handled by CSS)
+  const urlPattern = /(https?:\/\/[^\s]+)/g;
+  const linked = escaped.replace(urlPattern, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+  
+  // Convert newlines to <br>
+  return linked.replace(/\n/g, '<br>');
+}
+
 function renderMessage(msg) {
   const row = document.createElement('div');
   row.className = `row ${msg.role === 'user' ? 'out' : 'in'}`;
 
   const bubble = document.createElement('div');
   bubble.className = 'bubble';
-  bubble.textContent = msg.text;
+  bubble.innerHTML = linkifyText(msg.text);
   row.appendChild(bubble);
 
   // Render charts if present
