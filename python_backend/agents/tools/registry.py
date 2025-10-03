@@ -744,6 +744,97 @@ TOOL_DEFINITIONS = [
                 "required": ["company_or_ticker"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_reddit_sentiment",
+            "description": "Scan Reddit (r/wallstreetbets, r/stocks, r/investing) for sentiment and discussion volume about a stock. Returns sentiment score, mention volume, top posts, and trending status. Use for gauging retail investor sentiment.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., 'NVDA', 'TSLA')"
+                    }
+                },
+                "required": ["ticker"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_twitter_sentiment",
+            "description": "Scan Twitter/FinTwit for sentiment, influencer opinions, and discussion trends about a stock. Returns sentiment score, influencer takes, and trending status. Use for social media sentiment analysis.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., 'AAPL', 'MSFT')"
+                    }
+                },
+                "required": ["ticker"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_13f_changes",
+            "description": "Track recent 13F filing CHANGES - new positions, increased stakes, decreased stakes, exits by institutional investors. Shows smart money movement and conviction changes. Use to see what hedge funds and institutions are buying or selling.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., 'GOOGL', 'META')"
+                    }
+                },
+                "required": ["ticker"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_unusual_activity",
+            "description": "Detect unusual activity: unusual options flow, large block trades, dark pool prints. Indicates smart money positioning. Use to find unusual call/put buying or large institutional orders.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., 'AMZN', 'NFLX')"
+                    }
+                },
+                "required": ["ticker"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "run_deep_research",
+            "description": "🎯 KILLER FEATURE: Run comprehensive multi-source research with bull vs bear debate system. Returns high-conviction BUY/SELL/HOLD recommendation (1-10 conviction score) with detailed analysis. Use when user asks for investment recommendations, should I buy questions, or deep analysis. This is THE tool for generating stock recommendations.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "ticker": {
+                        "type": "string",
+                        "description": "Stock ticker symbol (e.g., 'NVDA', 'TSLA')"
+                    },
+                    "mode": {
+                        "type": "string",
+                        "enum": ["quick", "standard", "deep"],
+                        "description": "Research depth: 'quick' (30s), 'standard' (60s, default), 'deep' (3min)",
+                        "default": "standard"
+                    }
+                },
+                "required": ["ticker"]
+            }
+        }
     }
 ]
 

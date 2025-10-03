@@ -1573,3 +1573,358 @@ async def search_earnings_materials(
     except Exception as e:
         print(f"❌ Error searching earnings materials: {e}")
         return {"error": str(e), "company_or_ticker": company_or_ticker}
+
+# ============================================================================
+# SIGNAL DISCOVERY TOOLS (Multi-Source Intelligence)
+# ============================================================================
+
+@register_tool("get_reddit_sentiment")
+async def get_reddit_sentiment(ticker: str) -> Dict[str, Any]:
+    """
+    Scan Reddit (r/wallstreetbets, r/stocks, r/investing) for sentiment and discussion volume.
+    Returns sentiment score, mention volume, top posts, and trending status.
+    """
+    try:
+        print(f"🔍 Scanning Reddit sentiment for {ticker}...")
+        
+        # Search Reddit discussions
+        results = await exa_client.search(
+            query=f"{ticker} stock discussion sentiment reddit wallstreetbets investing",
+            num_results=30,
+            type="auto",
+            include_domains=["reddit.com"]
+        )
+        
+        posts = results.get("results", [])
+        
+        if not posts:
+            return {
+                "ticker": ticker,
+                "sentiment_score": 0.5,  # Neutral
+                "mention_volume": 0,
+                "trending": False,
+                "top_posts": [],
+                "summary": f"No recent Reddit discussions found for {ticker}"
+            }
+        
+        # Analyze sentiment from titles and content
+        bullish_keywords = ["bullish", "moon", "buy", "calls", "rocket", "yolo", "diamond hands", "hodl", "breakout", "pump"]
+        bearish_keywords = ["bearish", "puts", "sell", "crash", "dump", "rip", "dead", "overvalued", "short"]
+        
+        bullish_count = 0
+        bearish_count = 0
+        
+        for post in posts:
+            title = post.get("title", "").lower()
+            text = post.get("text", "").lower()
+            combined = title + " " + text
+            
+            bullish_count += sum(1 for word in bullish_keywords if word in combined)
+            bearish_count += sum(1 for word in bearish_keywords if word in combined)
+        
+        # Calculate sentiment score (0-1, where 0 is bearish, 1 is bullish)
+        total_signals = bullish_count + bearish_count
+        sentiment_score = bullish_count / total_signals if total_signals > 0 else 0.5
+        
+        # Determine sentiment label
+        if sentiment_score >= 0.7:
+            sentiment_label = "VERY BULLISH"
+        elif sentiment_score >= 0.55:
+            sentiment_label = "BULLISH"
+        elif sentiment_score >= 0.45:
+            sentiment_label = "NEUTRAL"
+        elif sentiment_score >= 0.3:
+            sentiment_label = "BEARISH"
+        else:
+            sentiment_label = "VERY BEARISH"
+        
+        return {
+            "ticker": ticker,
+            "sentiment_score": round(sentiment_score, 2),
+            "sentiment_label": sentiment_label,
+            "mention_volume": len(posts),
+            "trending": len(posts) > 20,  # More than 20 mentions = trending
+            "bullish_signals": bullish_count,
+            "bearish_signals": bearish_count,
+            "top_posts": [{
+                "title": p.get("title"),
+                "url": p.get("url"),
+                "date": p.get("publishedDate"),
+                "preview": p.get("text", "")[:200] if p.get("text") else None
+            } for p in posts[:5]],
+            "summary": f"Reddit sentiment: {sentiment_label} ({int(sentiment_score*100)}% bullish) based on {len(posts)} discussions"
+        }
+    
+    except Exception as e:
+        print(f"❌ Error scanning Reddit sentiment: {e}")
+        return {"error": str(e), "ticker": ticker}
+
+@register_tool("get_twitter_sentiment")
+async def get_twitter_sentiment(ticker: str) -> Dict[str, Any]:
+    """
+    Scan Twitter/FinTwit for sentiment, influencer opinions, and discussion trends.
+    Returns sentiment score, influencer takes, and trending status.
+    """
+    try:
+        print(f"🐦 Scanning Twitter sentiment for {ticker}...")
+        
+        # Search Twitter/FinTwit
+        results = await exa_client.search(
+            query=f"{ticker} stock fintwit twitter sentiment analysis",
+            num_results=25,
+            type="auto",
+            include_domains=["twitter.com", "x.com", "stocktwits.com"]
+        )
+        
+        tweets = results.get("results", [])
+        
+        if not tweets:
+            return {
+                "ticker": ticker,
+                "sentiment_score": 0.5,
+                "mention_volume": 0,
+                "trending": False,
+                "influencer_takes": [],
+                "summary": f"No recent Twitter/FinTwit discussions found for {ticker}"
+            }
+        
+        # Analyze sentiment
+        bullish_keywords = ["bullish", "long", "buy", "moon", "calls", "breakout", "bullish af", "undervalued"]
+        bearish_keywords = ["bearish", "short", "sell", "puts", "crash", "overvalued", "dump", "bearish"]
+        
+        bullish_count = 0
+        bearish_count = 0
+        
+        for tweet in tweets:
+            text = (tweet.get("title", "") + " " + tweet.get("text", "")).lower()
+            bullish_count += sum(1 for word in bullish_keywords if word in text)
+            bearish_count += sum(1 for word in bearish_keywords if word in text)
+        
+        total_signals = bullish_count + bearish_count
+        sentiment_score = bullish_count / total_signals if total_signals > 0 else 0.5
+        
+        if sentiment_score >= 0.7:
+            sentiment_label = "VERY BULLISH"
+        elif sentiment_score >= 0.55:
+            sentiment_label = "BULLISH"
+        elif sentiment_score >= 0.45:
+            sentiment_label = "NEUTRAL"
+        elif sentiment_score >= 0.3:
+            sentiment_label = "BEARISH"
+        else:
+            sentiment_label = "VERY BEARISH"
+        
+        return {
+            "ticker": ticker,
+            "sentiment_score": round(sentiment_score, 2),
+            "sentiment_label": sentiment_label,
+            "mention_volume": len(tweets),
+            "trending": len(tweets) > 15,
+            "bullish_signals": bullish_count,
+            "bearish_signals": bearish_count,
+            "influencer_takes": [{
+                "text": t.get("title"),
+                "url": t.get("url"),
+                "date": t.get("publishedDate"),
+                "preview": t.get("text", "")[:200] if t.get("text") else None
+            } for t in tweets[:5]],
+            "summary": f"Twitter sentiment: {sentiment_label} ({int(sentiment_score*100)}% bullish) based on {len(tweets)} posts"
+        }
+    
+    except Exception as e:
+        print(f"❌ Error scanning Twitter sentiment: {e}")
+        return {"error": str(e), "ticker": ticker}
+
+@register_tool("get_13f_changes")
+async def get_13f_changes(ticker: str) -> Dict[str, Any]:
+    """
+    Track recent 13F filing CHANGES - new positions, increased stakes, decreased stakes, exits.
+    This shows smart money movement and conviction changes.
+    """
+    try:
+        print(f"📊 Tracking 13F changes for {ticker}...")
+        
+        # Search for recent 13F changes
+        results = await exa_client.search(
+            query=f"{ticker} 13F filing increases new position institutional buying hedge fund",
+            num_results=25,
+            type="auto",
+            include_domains=["whalewisdom.com", "fintel.io", "dataroma.com", "gurufocus.com", "13f.info"]
+        )
+        
+        filings = results.get("results", [])
+        
+        if not filings:
+            return {
+                "ticker": ticker,
+                "activity_level": "LOW",
+                "new_positions": [],
+                "increased_positions": [],
+                "decreased_positions": [],
+                "exited_positions": [],
+                "summary": f"No recent 13F activity found for {ticker}"
+            }
+        
+        # Categorize activity (simple heuristic based on title/content)
+        new_positions = []
+        increased = []
+        decreased = []
+        exited = []
+        
+        for filing in filings:
+            title = filing.get("title", "").lower()
+            text = filing.get("text", "").lower()
+            combined = title + " " + text
+            
+            if any(word in combined for word in ["new position", "initiates", "new stake", "adds"]):
+                new_positions.append(filing)
+            elif any(word in combined for word in ["increases", "adds to", "boost", "doubles"]):
+                increased.append(filing)
+            elif any(word in combined for word in ["reduces", "trims", "cuts", "decreases"]):
+                decreased.append(filing)
+            elif any(word in combined for word in ["exits", "sells out", "liquidates", "closes"]):
+                exited.append(filing)
+        
+        # Determine activity level
+        total_buying = len(new_positions) + len(increased)
+        total_selling = len(decreased) + len(exited)
+        
+        if total_buying > total_selling * 2:
+            activity_level = "STRONG BUYING"
+        elif total_buying > total_selling:
+            activity_level = "NET BUYING"
+        elif total_selling > total_buying * 2:
+            activity_level = "STRONG SELLING"
+        elif total_selling > total_buying:
+            activity_level = "NET SELLING"
+        else:
+            activity_level = "NEUTRAL"
+        
+        return {
+            "ticker": ticker,
+            "activity_level": activity_level,
+            "new_positions_count": len(new_positions),
+            "increased_count": len(increased),
+            "decreased_count": len(decreased),
+            "exited_count": len(exited),
+            "new_positions": [{
+                "title": p.get("title"),
+                "url": p.get("url"),
+                "date": p.get("publishedDate")
+            } for p in new_positions[:5]],
+            "increased_positions": [{
+                "title": p.get("title"),
+                "url": p.get("url"),
+                "date": p.get("publishedDate")
+            } for p in increased[:5]],
+            "summary": f"13F Activity: {activity_level} - {len(new_positions)} new positions, {len(increased)} increased, {len(decreased)} decreased, {len(exited)} exits"
+        }
+    
+    except Exception as e:
+        print(f"❌ Error tracking 13F changes: {e}")
+        return {"error": str(e), "ticker": ticker}
+
+@register_tool("get_unusual_activity")
+async def get_unusual_activity(ticker: str) -> Dict[str, Any]:
+    """
+    Detect unusual activity: unusual options flow, large block trades, dark pool prints.
+    Indicates smart money positioning.
+    """
+    try:
+        print(f"🎯 Scanning unusual activity for {ticker}...")
+        
+        # Search for unusual activity mentions
+        results = await exa_client.search(
+            query=f"{ticker} unusual options activity dark pool whales large orders flow",
+            num_results=20,
+            type="auto"
+        )
+        
+        activities = results.get("results", [])
+        
+        if not activities:
+            return {
+                "ticker": ticker,
+                "unusual_detected": False,
+                "activity_type": [],
+                "summary": f"No unusual activity detected for {ticker}"
+            }
+        
+        # Detect activity types
+        unusual_calls = any("call" in a.get("title", "").lower() for a in activities)
+        unusual_puts = any("put" in a.get("title", "").lower() for a in activities)
+        dark_pool = any("dark pool" in (a.get("title", "") + a.get("text", "")).lower() for a in activities)
+        large_blocks = any("block" in a.get("title", "").lower() for a in activities)
+        
+        activity_types = []
+        if unusual_calls:
+            activity_types.append("UNUSUAL CALL BUYING")
+        if unusual_puts:
+            activity_types.append("UNUSUAL PUT BUYING")
+        if dark_pool:
+            activity_types.append("DARK POOL ACTIVITY")
+        if large_blocks:
+            activity_types.append("LARGE BLOCK TRADES")
+        
+        # Determine bullish/bearish bias
+        if unusual_calls and not unusual_puts:
+            bias = "BULLISH"
+        elif unusual_puts and not unusual_calls:
+            bias = "BEARISH"
+        else:
+            bias = "MIXED"
+        
+        return {
+            "ticker": ticker,
+            "unusual_detected": len(activity_types) > 0,
+            "activity_type": activity_types,
+            "bias": bias,
+            "signals_count": len(activities),
+            "recent_activity": [{
+                "title": a.get("title"),
+                "url": a.get("url"),
+                "date": a.get("publishedDate"),
+                "preview": a.get("text", "")[:150] if a.get("text") else None
+            } for a in activities[:5]],
+            "summary": f"Unusual Activity: {bias} bias detected - {', '.join(activity_types) if activity_types else 'None'}"
+        }
+    
+    except Exception as e:
+        print(f"❌ Error scanning unusual activity: {e}")
+        return {"error": str(e), "ticker": ticker}
+
+# ============================================================================
+# DEEP RESEARCH & CONVICTION SCORING
+# ============================================================================
+
+@register_tool("run_deep_research")
+async def run_deep_research(ticker: str, mode: str = "standard") -> Dict[str, Any]:
+    """
+    Run comprehensive multi-source research with bull vs bear debate.
+    Returns high-conviction BUY/SELL/HOLD recommendation with detailed analysis.
+    
+    This is the KILLER FEATURE - uses all signals + AI debate to generate recommendations.
+    """
+    try:
+        print(f"\n🚀 DEEP RESEARCH INITIATED: {ticker} (mode: {mode})")
+        
+        # Import here to avoid circular imports
+        from agents.debate_coordinator import DebateCoordinator
+        from agents.research_config import get_config
+        
+        # Get config for mode
+        config = get_config(mode)
+        
+        # Create coordinator
+        coordinator = DebateCoordinator(config)
+        
+        # Run full research with debate
+        report = await coordinator.research_stock(ticker)
+        
+        return report
+    
+    except Exception as e:
+        print(f"❌ Error running deep research: {e}")
+        import traceback
+        traceback.print_exc()
+        return {"error": str(e), "ticker": ticker}
