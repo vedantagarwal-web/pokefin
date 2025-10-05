@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Google OAuth - Orthogonal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        .btn {
+            background: #4285F4;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+        .btn:hover {
+            background: #3367D6;
+        }
+        .result {
+            background: #333;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 10px 0;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .error {
+            background: #4a1a1a;
+            color: #ff6b6b;
+        }
+        .success {
+            background: #1a4a1a;
+            color: #6bff6b;
+        }
+    </style>
+</head>
+<body>
+    <h1>Google OAuth Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Google Sign-In</h2>
+        <button id="test-google-btn" class="btn">Test Google OAuth</button>
+        <div id="google-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Current Session</h2>
+        <button id="check-session-btn" class="btn">Check Current Session</button>
+        <div id="session-result" class="result" style="display: none;"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Instructions</h2>
+        <ol>
+            <li>Make sure your Supabase project has Google OAuth configured</li>
+            <li>Click "Test Google OAuth" to initiate sign-in</li>
+            <li>Complete the Google OAuth flow</li>
+            <li>You should be redirected back to the callback page</li>
+            <li>Use "Check Current Session" to verify authentication</li>
+        </ol>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
+        const supabase = createClient(
+            'https://empxwjsdjszlvbplmtts.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcHh3anNkanN6bHZicGxtdHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTExNTcsImV4cCI6MjA3NTAyNzE1N30.jXNKBJrapzqj2mEM1lhNdiC2ns2OoGvj3k43E9elSUE'
+        );
+
+        function showResult(elementId, message, isError = false) {
+            const element = document.getElementById(elementId);
+            element.style.display = 'block';
+            element.className = `result ${isError ? 'error' : 'success'}`;
+            element.textContent = typeof message === 'object' ? JSON.stringify(message, null, 2) : message;
+        }
+
+        document.getElementById('test-google-btn').addEventListener('click', async () => {
+            try {
+                showResult('google-result', 'Initiating Google OAuth...');
+                
+                const { data, error } = await supabase.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: `${window.location.origin}/auth/callback.html`
+                    }
+                });
+
+                if (error) {
+                    showResult('google-result', `Error: ${error.message}`, true);
+                } else if (data.url) {
+                    showResult('google-result', `Redirecting to: ${data.url}`);
+                    // The redirect will happen automatically
+                } else {
+                    showResult('google-result', 'No OAuth URL received', true);
+                }
+            } catch (error) {
+                showResult('google-result', `Exception: ${error.message}`, true);
+            }
+        });
+
+        document.getElementById('check-session-btn').addEventListener('click', async () => {
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    showResult('session-result', `Error: ${error.message}`, true);
+                } else if (data.session) {
+                    showResult('session-result', {
+                        user: {
+                            id: data.session.user.id,
+                            email: data.session.user.email,
+                            providers: data.session.user.app_metadata?.providers || []
+                        },
+                        access_token: data.session.access_token.substring(0, 20) + '...'
+                    });
+                } else {
+                    showResult('session-result', 'No active session found');
+                }
+            } catch (error) {
+                showResult('session-result', `Exception: ${error.message}`, true);
+            }
+        });
+
+        // Check if we're coming back from OAuth
+        if (window.location.search.includes('code=') || window.location.hash.includes('access_token=')) {
+            showResult('google-result', 'OAuth callback detected. Processing...');
+            
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                if (error) {
+                    showResult('google-result', `Callback error: ${error.message}`, true);
+                } else if (data.session) {
+                    showResult('google-result', 'OAuth successful! Session established.');
+                }
+            } catch (error) {
+                showResult('google-result', `Callback exception: ${error.message}`, true);
+            }
+        }
+    </script>
+</body>
+</html>

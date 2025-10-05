@@ -835,6 +835,322 @@ TOOL_DEFINITIONS = [
                 "required": ["ticker"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "roast_portfolio",
+            "description": "🔥 BRUTAL PORTFOLIO ROAST: Analyze user's portfolio with brutal honesty like Poke roasts emails. Identifies meme stocks, over-concentration, terrible performance, and calculates FIRE requirements. Use when user wants portfolio analysis or financial reality check.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "portfolio_data": {
+                        "type": "object",
+                        "description": "Portfolio data with positions, cash, etc. Optional - will use mock data if not provided"
+                    },
+                    "user_age": {
+                        "type": "integer",
+                        "description": "User's age for FIRE calculations",
+                        "default": 30
+                    },
+                    "user_income": {
+                        "type": "integer", 
+                        "description": "User's annual income",
+                        "default": 50000
+                    },
+                    "user_savings": {
+                        "type": "integer",
+                        "description": "User's current savings",
+                        "default": 10000
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "calculate_fire",
+            "description": "💀 BRUTAL FIRE CALCULATOR: Calculate Financial Independence Retire Early (FIRE) requirements with brutal honesty about reality. Shows exactly how much user needs to invest monthly to retire by target age. Use when user asks about FIRE, retirement planning, or financial independence.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_age": {
+                        "type": "integer",
+                        "description": "User's current age",
+                        "default": 30
+                    },
+                    "current_savings": {
+                        "type": "integer",
+                        "description": "Current total savings/investments",
+                        "default": 10000
+                    },
+                    "monthly_income": {
+                        "type": "integer",
+                        "description": "Monthly gross income",
+                        "default": 5000
+                    },
+                    "monthly_expenses": {
+                        "type": "integer",
+                        "description": "Monthly expenses",
+                        "default": 4000
+                    },
+                    "target_retirement_age": {
+                        "type": "integer",
+                        "description": "Desired retirement age",
+                        "default": 45
+                    },
+                    "risk_tolerance": {
+                        "type": "string",
+                        "enum": ["conservative", "moderate", "aggressive"],
+                        "description": "Investment risk tolerance",
+                        "default": "moderate"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "negotiate_access",
+            "description": "🤝 NEGOTIATION SYSTEM: User must convince AI to work with them and negotiate pricing. AI analyzes user profile and sets conditions. Use for initial onboarding conversation flow. Production-grade conversation with qualifying questions before pricing.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_profile": {
+                        "type": "object",
+                        "description": "User profile with age, income, savings, experience, goals. Optional - will use mock data if not provided"
+                    },
+                    "initial_request": {
+                        "type": "string",
+                        "description": "User's initial request to use the service",
+                        "default": "I want to use your financial advisor"
+                    },
+                    "conversation_stage": {
+                        "type": "string",
+                        "enum": ["initial", "qualifying", "assessment", "budget_negotiation", "final_agreement"],
+                        "description": "Current stage in the negotiation conversation flow",
+                        "default": "initial"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "assess_risk_tolerance",
+            "description": "🎯 RISK TOLERANCE ASSESSMENT: Comprehensive questionnaire to understand user's risk appetite and recommend appropriate investment strategies (index funds, ETFs, stocks, options). Use for onboarding to determine investment recommendations.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_responses": {
+                        "type": "object",
+                        "description": "User's answers to risk assessment questions. Optional - will start questionnaire if not provided"
+                    },
+                    "conversation_stage": {
+                        "type": "string",
+                        "enum": ["initial", "risk_assessment"],
+                        "description": "Current stage in risk assessment conversation",
+                        "default": "initial"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "connect_brokerage",
+            "description": "🏦 BROKERAGE CONNECTION: Connect user's Robinhood or other brokerage account via SnapTrade for real portfolio data analysis. Use when user wants to link their brokerage account.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "Unique user identifier. Optional - will generate if not provided"
+                    },
+                    "redirect_uri": {
+                        "type": "string",
+                        "description": "Redirect URI for OAuth callback",
+                        "default": "http://localhost:8787/callback"
+                    }
+                },
+                "required": []
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_real_portfolio",
+            "description": "📊 REAL PORTFOLIO DATA: Fetch user's actual portfolio from connected brokerage for authentic portfolio roasting and FIRE calculations. Use after brokerage connection is established.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "SnapTrade user ID from brokerage connection"
+                    },
+                    "user_secret": {
+                        "type": "string",
+                        "description": "SnapTrade user secret from brokerage connection"
+                    },
+                    "account_id": {
+                        "type": "string",
+                        "description": "Specific account ID. Optional - uses first account if not provided"
+                    }
+                },
+                "required": ["user_id", "user_secret"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "analyze_robinhood_portfolio",
+            "description": "📊 ROBINHOOD PORTFOLIO ANALYSIS: Fetch and analyze user's actual Robinhood portfolio for authentic portfolio roasting and FIRE calculations using real data. Use when user has connected their Robinhood account via OAuth2.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "access_token": {
+                        "type": "string",
+                        "description": "Robinhood OAuth2 access token from connected account"
+                    },
+                    "account_id": {
+                        "type": "string",
+                        "description": "Specific Robinhood account ID. Optional - uses first account if not provided"
+                    }
+                },
+                "required": ["access_token"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_portfolio_summary",
+            "description": "📊 PORTFOLIO SUMMARY: Get comprehensive portfolio summary including positions, balances, and performance. Use when user asks about their portfolio, holdings, or account balance.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "SnapTrade user ID from brokerage connection"
+                    },
+                    "user_secret": {
+                        "type": "string",
+                        "description": "SnapTrade user secret from brokerage connection"
+                    }
+                },
+                "required": ["user_id", "user_secret"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_account_positions",
+            "description": "📈 ACCOUNT POSITIONS: Get detailed positions for a specific account or all accounts. Use when user asks about their holdings, positions, or specific stocks they own.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "SnapTrade user ID from brokerage connection"
+                    },
+                    "user_secret": {
+                        "type": "string",
+                        "description": "SnapTrade user secret from brokerage connection"
+                    },
+                    "account_id": {
+                        "type": "string",
+                        "description": "Specific account ID. Optional - gets all accounts if not provided"
+                    }
+                },
+                "required": ["user_id", "user_secret"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_trade_history",
+            "description": "📋 TRADE HISTORY: Get transaction history for a specific account or all accounts. Use when user asks about their trading history, past trades, or transaction records.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "SnapTrade user ID from brokerage connection"
+                    },
+                    "user_secret": {
+                        "type": "string",
+                        "description": "SnapTrade user secret from brokerage connection"
+                    },
+                    "account_id": {
+                        "type": "string",
+                        "description": "Specific account ID. Optional - gets all accounts if not provided"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Maximum number of transactions to return. Default: 50"
+                    }
+                },
+                "required": ["user_id", "user_secret"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "analyze_portfolio_performance",
+            "description": "📊 PORTFOLIO PERFORMANCE: Analyze portfolio performance including returns, risk metrics, and recommendations. Use when user asks about portfolio performance, returns, or investment analysis.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "SnapTrade user ID from brokerage connection"
+                    },
+                    "user_secret": {
+                        "type": "string",
+                        "description": "SnapTrade user secret from brokerage connection"
+                    }
+                },
+                "required": ["user_id", "user_secret"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "get_account_balances",
+            "description": "💰 ACCOUNT BALANCES: Get account balances including cash, buying power, and equity. Use when user asks about their account balance, cash available, or buying power.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "user_id": {
+                        "type": "string",
+                        "description": "SnapTrade user ID from brokerage connection"
+                    },
+                    "user_secret": {
+                        "type": "string",
+                        "description": "SnapTrade user secret from brokerage connection"
+                    },
+                    "account_id": {
+                        "type": "string",
+                        "description": "Specific account ID. Optional - gets all accounts if not provided"
+                    }
+                },
+                "required": ["user_id", "user_secret"]
+            }
+        }
     }
 ]
 

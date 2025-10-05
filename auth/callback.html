@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication - Orthogonal</title>
+    <link rel="stylesheet" href="../styles.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: var(--color-background);
+        }
+        .auth-callback {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+        }
+        .spinner {
+            border: 3px solid var(--color-border);
+            border-top: 3px solid var(--color-accent);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-callback">
+        <div class="spinner"></div>
+        <h2>Completing authentication...</h2>
+        <p>Please wait while we sign you in.</p>
+        <div id="error-message" style="display: none; color: var(--color-error); margin-top: 1rem;"></div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
+
+        const supabase = createClient(
+            'https://empxwjsdjszlvbplmtts.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtcHh3anNkanN6bHZicGxtdHRzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTk0NTExNTcsImV4cCI6MjA3NTAyNzE1N30.jXNKBJrapzqj2mEM1lhNdiC2ns2OoGvj3k43E9elSUE'
+        );
+
+        async function handleAuthCallback() {
+            try {
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    throw error;
+                }
+
+                if (data.session) {
+                    // Store session in localStorage for our auth service
+                    localStorage.setItem('supabase_access_token', data.session.access_token);
+                    localStorage.setItem('user_email', data.session.user.email);
+                    
+                    // Redirect to main app
+                    window.location.href = '../chat.html';
+                } else {
+                    throw new Error('No session found');
+                }
+            } catch (error) {
+                console.error('Auth callback error:', error);
+                document.getElementById('error-message').style.display = 'block';
+                document.getElementById('error-message').textContent = error.message || 'Authentication failed';
+                
+                // Redirect to home page after 3 seconds
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 3000);
+            }
+        }
+
+        // Handle the callback
+        handleAuthCallback();
+    </script>
+</body>
+</html>

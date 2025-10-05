@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup 2FA - Orthogonal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="auth-modal-content" style="margin: 2rem auto; max-width: 500px;">
+            <div class="auth-modal-header">
+                <h2>Setup Two-Factor Authentication</h2>
+            </div>
+            
+            <!-- MFA Setup Form -->
+            <div id="mfa-setup" class="auth-form">
+                <div class="auth-form-group">
+                    <label>Step 1: Scan QR Code</label>
+                    <p style="color: var(--color-text-secondary); font-size: 14px; margin-bottom: 1rem;">
+                        Use an authenticator app like Google Authenticator, Authy, or 1Password to scan this QR code:
+                    </p>
+                    <div id="qr-code-container" style="text-align: center; margin: 1rem 0;">
+                        <!-- QR code will be inserted here -->
+                    </div>
+                    <div id="manual-secret" style="display: none; margin: 1rem 0; padding: 1rem; background: var(--color-surface-elevated); border-radius: var(--radius-sm);">
+                        <p style="font-size: 12px; color: var(--color-text-secondary); margin-bottom: 0.5rem;">Can't scan? Enter this code manually:</p>
+                        <code id="secret-text" style="word-break: break-all; font-size: 12px;"></code>
+                    </div>
+                    <button type="button" id="show-secret-btn" class="auth-form-submit" style="margin-bottom: 1rem;">Show Secret Key</button>
+                </div>
+                
+                <div class="auth-form-group">
+                    <label for="verify-code">Step 2: Enter Verification Code</label>
+                    <input type="text" id="verify-code" placeholder="Enter 6-digit code from your app" maxlength="6" style="text-align: center; font-size: 18px; letter-spacing: 2px;">
+                </div>
+                
+                <button type="button" id="verify-mfa-btn" class="auth-form-submit">Verify & Enable 2FA</button>
+                <button type="button" id="cancel-mfa-btn" class="auth-switch-btn" style="margin-top: 1rem;">Cancel</button>
+                
+                <div id="mfa-error" style="display: none; color: var(--color-error); margin-top: 1rem; padding: 0.5rem; background: rgba(239, 68, 68, 0.1); border-radius: var(--radius-sm);"></div>
+                <div id="mfa-success" style="display: none; color: var(--color-success); margin-top: 1rem; padding: 0.5rem; background: rgba(16, 185, 129, 0.1); border-radius: var(--radius-sm);"></div>
+            </div>
+            
+            <!-- MFA Success -->
+            <div id="mfa-success-screen" class="auth-form" style="display: none; text-align: center;">
+                <div style="font-size: 48px; margin-bottom: 1rem;">✅</div>
+                <h3>2FA Enabled Successfully!</h3>
+                <p style="color: var(--color-text-secondary); margin-bottom: 2rem;">
+                    Your account is now protected with two-factor authentication. You'll be asked for a verification code each time you sign in.
+                </p>
+                <button type="button" id="continue-btn" class="auth-form-submit">Continue to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        class MFASetup {
+            constructor() {
+                this.factorId = null;
+                this.challengeId = null;
+                this.init();
+            }
+
+            async init() {
+                // Check if user is authenticated
+                if (!window.authService.isAuthenticated()) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                await this.startEnrollment();
+                this.setupEventListeners();
+            }
+
+            async startEnrollment() {
+                try {
+                    const result = await window.authService.enrollMFA();
+                    
+                    if (result.success) {
+                        this.factorId = result.factor_id;
+                        this.displayQRCode(result.qr_code);
+                        this.secret = result.secret;
+                    } else {
+                        this.showError(result.error || 'Failed to start 2FA enrollment');
+                    }
+                } catch (error) {
+                    this.showError('Failed to start 2FA enrollment');
+                }
+            }
+
+            displayQRCode(qrCodeSvg) {
+                const container = document.getElementById('qr-code-container');
+                container.innerHTML = `<img src="${qrCodeSvg}" alt="QR Code" style="max-width: 200px; border: 1px solid var(--color-border); border-radius: var(--radius-sm);">`;
+            }
+
+            setupEventListeners() {
+                document.getElementById('show-secret-btn').addEventListener('click', () => {
+                    const secretDiv = document.getElementById('manual-secret');
+                    const secretText = document.getElementById('secret-text');
+                    secretDiv.style.display = 'block';
+                    secretText.textContent = this.secret;
+                });
+
+                document.getElementById('verify-mfa-btn').addEventListener('click', () => {
+                    this.verifyMFA();
+                });
+
+                document.getElementById('cancel-mfa-btn').addEventListener('click', () => {
+                    window.location.href = 'chat.html';
+                });
+
+                document.getElementById('continue-btn').addEventListener('click', () => {
+                    window.location.href = 'chat.html';
+                });
+
+                // Auto-submit on 6-digit code entry
+                document.getElementById('verify-code').addEventListener('input', (e) => {
+                    if (e.target.value.length === 6) {
+                        this.verifyMFA();
+                    }
+                });
+            }
+
+            async verifyMFA() {
+                const code = document.getElementById('verify-code').value.trim();
+                
+                if (code.length !== 6) {
+                    this.showError('Please enter a 6-digit code');
+                    return;
+                }
+
+                try {
+                    // First create a challenge
+                    const challengeResult = await this.createChallenge();
+                    if (!challengeResult.success) {
+                        this.showError(challengeResult.error);
+                        return;
+                    }
+
+                    this.challengeId = challengeResult.challenge_id;
+
+                    // Then verify the code
+                    const result = await window.authService.verifyMFA(this.factorId, this.challengeId, code);
+                    
+                    if (result.success) {
+                        this.showSuccess();
+                    } else {
+                        this.showError(result.error || 'Invalid verification code');
+                    }
+                } catch (error) {
+                    this.showError('Failed to verify 2FA code');
+                }
+            }
+
+            async createChallenge() {
+                try {
+                    const response = await fetch('http://localhost:8788/api/auth/mfa/challenge', {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${window.authService.accessToken}`
+                        },
+                        body: JSON.stringify({
+                            factorId: this.factorId
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    return data;
+                } catch (error) {
+                    return { success: false, error: 'Failed to create challenge' };
+                }
+            }
+
+            showError(message) {
+                const errorDiv = document.getElementById('mfa-error');
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+                
+                const successDiv = document.getElementById('mfa-success');
+                successDiv.style.display = 'none';
+            }
+
+            showSuccess() {
+                const setupDiv = document.getElementById('mfa-setup');
+                const successDiv = document.getElementById('mfa-success-screen');
+                
+                setupDiv.style.display = 'none';
+                successDiv.style.display = 'block';
+            }
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            new MFASetup();
+        });
+    </script>
+</body>
+</html>

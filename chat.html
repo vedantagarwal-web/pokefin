@@ -19,6 +19,15 @@
           <span class="brand-subtitle">Research Terminal</span>
         </div>
         <div class="actions">
+          <span class="user-info" data-auth="show-if-logged-in" style="display: none;">
+            <span data-user-info="email"></span>
+            <a href="2fa.html" class="nav-link" style="margin-right: 0.5rem;">2FA Setup</a>
+            <button id="signout-btn" class="nav-link">Sign Out</button>
+          </span>
+          <button id="connectBrokerage" class="connect-btn" title="Connect Robinhood account">
+            <span class="btn-icon">🏦</span>
+            Connect Robinhood
+          </button>
           <button id="resetBtn" title="Reset conversation">Reset</button>
         </div>
       </header>
@@ -64,8 +73,78 @@
       </div>
     </div>
 
+    <!-- Robinhood Connection Modal -->
+    <div id="brokerageModal" class="modal" style="display: none;">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Connect Your Brokerage Account</h3>
+          <button id="modalClose" class="modal-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="connection-flow">
+            <div id="connectionStep1" class="connection-step active">
+              <h4>Step 1: Generate Connection</h4>
+              <p>Click below to generate a secure connection link to your Robinhood account.</p>
+              <button id="generateConnection" class="primary-btn">Generate Connection Link</button>
+            </div>
+            
+            <div id="connectionStep2" class="connection-step" style="display: none;">
+              <h4>Step 2: Connect Your Account</h4>
+              <p>Click the link below to securely connect your Robinhood account:</p>
+              <div class="connection-link">
+                <a id="connectionUrl" href="#" class="connection-btn">
+                  🔗 Connect Robinhood Account
+                </a>
+              </div>
+              <div class="instructions">
+                <h5>Instructions:</h5>
+                <ol>
+                  <li>Click the connection link above</li>
+                  <li>Select Robinhood as your brokerage</li>
+                  <li>Enter your Robinhood login credentials</li>
+                  <li>Authorize SnapTrade to access your account</li>
+                  <li>You'll be redirected back here automatically</li>
+                </ol>
+              </div>
+              <button id="checkConnection" class="secondary-btn">Check Connection Status</button>
+              <button id="debugConnection" class="secondary-btn" style="margin-top: 10px; background: #666;">Debug Connection</button>
+            </div>
+            
+            <div id="connectionStep3" class="connection-step" style="display: none;">
+              <h4>Step 3: Connection Complete!</h4>
+              <div class="success-message">
+                <div class="success-icon">✅</div>
+                <p>Your Robinhood account has been successfully connected!</p>
+                <div id="accountInfo" class="account-info"></div>
+              </div>
+              <button id="analyzePortfolio" class="primary-btn">Analyze My Portfolio</button>
+            </div>
+            
+            <div id="connectionError" class="connection-step error" style="display: none;">
+              <h4>Connection Error</h4>
+              <div class="error-message">
+                <div class="error-icon">❌</div>
+                <p id="errorText">Failed to connect your brokerage account.</p>
+              </div>
+              <button id="resetConnection" class="secondary-btn">Try Again</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script src="js/charts.js"></script>
+    <script src="js/auth.js"></script>
     <script type="module" src="js/app.js"></script>
+    <script>
+      // Check authentication on page load
+      document.addEventListener('DOMContentLoaded', function() {
+        if (!window.authService.isAuthenticated()) {
+          // Redirect to landing page if not authenticated
+          window.location.href = 'index.html';
+        }
+      });
+    </script>
   </body>
 </html>
 

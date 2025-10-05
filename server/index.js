@@ -267,6 +267,108 @@ const server = http.createServer(async (req, res) => {
     if (pathname === '/api/v1/chat/history' && req.method === 'GET') return handleHistoryGet(req, res, u);
     if (pathname === '/api/v1/chat/history' && req.method === 'DELETE') return handleHistoryDelete(req, res, u);
 
+    // Handle SnapTrade callback
+    if (pathname.startsWith('/callback')) {
+      console.log('[server] SnapTrade callback received:', req.url);
+      
+      try {
+        // Parse query parameters
+        const queryParams = Object.fromEntries(u.searchParams);
+        console.log('[server] Callback query params:', queryParams);
+        
+        // Forward to Python backend
+        const response = await fetch(`${PYTHON_BACKEND_URL}/api/snaptrade/callback?${u.search.substring(1)}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        
+        const result = await response.json();
+        console.log('[server] Python backend response:', result);
+        
+        // Return callback.html with the result
+        const callbackHtml = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>SnapTrade Connection</title>
+            <style>
+              body { font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; }
+              .container { max-width: 500px; margin: 0 auto; text-align: center; }
+              .success { color: #00d4aa; }
+              .error { color: #e74c3c; }
+            </style>
+          </head>
+          <body>
+            <div class="container">
+              <h1>SnapTrade Connection</h1>
+              ${result.success ? 
+                '<div class="success"><h2>✅ Connection Successful!</h2><p>Your Robinhood account has been connected via SnapTrade.</p></div>' :
+                '<div class="error"><h2>❌ Connection Failed</h2><p>Error: ' + (result.error || 'Unknown error') + '</p></div>'
+              }
+              <p><a href="/chat.html" style="color: #00d4aa;">Return to App</a></p>
+              <p><em>You will be redirected automatically in 3 seconds...</em></p>
+              <script>
+                // Store connection details if successful
+                if (${result.success}) {
+                  // Get user credentials from URL parameters or backend response
+                  const urlParams = new URLSearchParams(window.location.search);
+                  const userId = urlParams.get('userId') || ${JSON.stringify(result.user_id)} || 'connected_user';
+                  const userSecret = urlParams.get('userSecret') || ${JSON.stringify(result.user_secret)} || 'connected_secret';
+                  
+                  // Store in localStorage for persistent connection
+                  localStorage.setItem('snaptrade_user_id', userId);
+                  localStorage.setItem('snaptrade_user_secret', userSecret);
+                  localStorage.setItem('snaptrade_connected', 'true');
+                  localStorage.setItem('snaptrade_connected_at', new Date().toISOString());
+                  
+                  console.log('SnapTrade connection stored:', { userId, userSecret });
+                  console.log('URL params:', Object.fromEntries(urlParams));
+                  
+                  // Auto-redirect to chat page after storing credentials
+                  setTimeout(() => {
+                    window.location.href = '/chat.html';
+                  }, 3000);
+                } else {
+                  // Even if connection failed, redirect back to chat
+                  setTimeout(() => {
+                    window.location.href = '/chat.html';
+                  }, 3000);
+                }
+                
+                // Notify parent window if in popup
+                if (window.opener) {
+                  window.opener.postMessage({
+                    type: 'snaptrade_callback',
+                    success: ${result.success},
+                    data: ${JSON.stringify(result)}
+                  }, '*');
+                  window.close();
+                }
+              </script>
+            </div>
+          </body>
+          </html>
+        `;
+        
+        res.writeHead(200, { 'Content-Type': 'text/html' });
+        res.end(callbackHtml);
+        return;
+      } catch (error) {
+        console.error('[server] Callback error:', error);
+        res.writeHead(500, { 'Content-Type': 'text/html' });
+        res.end(`
+          <html>
+          <body style="font-family: Arial, sans-serif; padding: 20px; background: #1a1a1a; color: #fff; text-align: center;">
+            <h1>Connection Error</h1>
+            <p>There was an error processing the SnapTrade callback.</p>
+            <p><a href="/chat.html" style="color: #00d4aa;">Return to App</a></p>
+          </body>
+          </html>
+        `);
+        return;
+      }
+    }
+
     // Static assets (serve from project root)
     const root = path.resolve(__dirname, '..');
     let filePath = path.join(root, pathname === '/' ? 'index.html' : pathname.replace(/^\/+/, ''));
@@ -292,6 +394,7 @@ const server = http.createServer(async (req, res) => {
     res.end('Server error');
   }
 });
+
 
 server.listen(PORT, () => {
   console.log(`[pokefin] listening on http://localhost:${PORT}`);

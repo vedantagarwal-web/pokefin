@@ -18,12 +18,14 @@ from services.financial_datasets_client import FinancialDatasetsClient
 from services.exa_client import ExaClient
 from services.chart_service import ChartService
 from services.screener_service import ScreenerService
+from services.snaptrade_client import SnapTradeClient
 
 # Initialize clients (after load_dotenv)
 fd_client = FinancialDatasetsClient()
 exa_client = ExaClient()
 chart_service = ChartService()
 screener_service = ScreenerService()
+snaptrade_client = SnapTradeClient()
 
 @register_tool("get_stock_price")
 async def get_stock_price(
@@ -2191,3 +2193,279 @@ async def get_earnings_highlights(ticker: str) -> Dict[str, Any]:
     except Exception as e:
         print(f"❌ Error getting earnings highlights: {e}")
         return {"error": str(e), "ticker": ticker}
+
+
+# ============================================================================
+# PORTFOLIO ANALYSIS TOOLS (SnapTrade Integration)
+# ============================================================================
+
+@register_tool("get_portfolio_summary")
+async def get_portfolio_summary(user_id: str, user_secret: str) -> Dict[str, Any]:
+    """
+    Get comprehensive portfolio summary including positions, balances, and performance.
+    Use when user asks about their portfolio, holdings, or account balance.
+    """
+    try:
+        print(f"📊 Getting portfolio summary for user {user_id}...")
+        
+        portfolio = await snaptrade_client.get_portfolio_summary(user_id, user_secret)
+        
+        return {
+            "user_id": user_id,
+            "portfolio": portfolio,
+            "summary": {
+                "total_equity": portfolio.get("total_equity", 0),
+                "total_cash": portfolio.get("total_cash", 0),
+                "total_buying_power": portfolio.get("total_buying_power", 0),
+                "day_change": portfolio.get("day_change", 0),
+                "day_change_percent": portfolio.get("day_change_percent", 0),
+                "position_count": len(portfolio.get("positions", [])),
+                "account_count": len(portfolio.get("accounts", []))
+            }
+        }
+    
+    except Exception as e:
+        print(f"❌ Error getting portfolio summary: {e}")
+        return {"error": str(e), "user_id": user_id}
+
+
+@register_tool("get_account_positions")
+async def get_account_positions(user_id: str, user_secret: str, account_id: str = None) -> Dict[str, Any]:
+    """
+    Get detailed positions for a specific account or all accounts.
+    Use when user asks about their holdings, positions, or specific stocks they own.
+    """
+    try:
+        print(f"📈 Getting account positions for user {user_id}...")
+        
+        if account_id:
+            # Get positions for specific account
+            positions = await snaptrade_client.get_account_positions(user_id, user_secret, account_id)
+            return {
+                "user_id": user_id,
+                "account_id": account_id,
+                "positions": positions,
+                "position_count": len(positions)
+            }
+        else:
+            # Get all accounts and their positions
+            accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
+            all_positions = []
+            
+            for account in accounts:
+                positions = await snaptrade_client.get_account_positions(user_id, user_secret, account["id"])
+                for position in positions:
+                    position["account_name"] = account["name"]
+                    position["account_id"] = account["id"]
+                all_positions.extend(positions)
+            
+            return {
+                "user_id": user_id,
+                "positions": all_positions,
+                "position_count": len(all_positions),
+                "account_count": len(accounts)
+            }
+    
+    except Exception as e:
+        print(f"❌ Error getting account positions: {e}")
+        return {"error": str(e), "user_id": user_id}
+
+
+@register_tool("get_trade_history")
+async def get_trade_history(user_id: str, user_secret: str, account_id: str = None, limit: int = 50) -> Dict[str, Any]:
+    """
+    Get transaction history for a specific account or all accounts.
+    Use when user asks about their trading history, past trades, or transaction records.
+    """
+    try:
+        print(f"📋 Getting trade history for user {user_id}...")
+        
+        if account_id:
+            # Get transactions for specific account
+            transactions = await snaptrade_client.get_account_transactions(user_id, user_secret, account_id)
+            if limit:
+                transactions = transactions[:limit]
+            
+            return {
+                "user_id": user_id,
+                "account_id": account_id,
+                "transactions": transactions,
+                "transaction_count": len(transactions)
+            }
+        else:
+            # Get all accounts and their transactions
+            accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
+            all_transactions = []
+            
+            for account in accounts:
+                transactions = await snaptrade_client.get_account_transactions(user_id, user_secret, account["id"])
+                for transaction in transactions:
+                    transaction["account_name"] = account["name"]
+                    transaction["account_id"] = account["id"]
+                all_transactions.extend(transactions)
+            
+            # Sort by date (most recent first) and limit
+            all_transactions.sort(key=lambda x: x.get("date", ""), reverse=True)
+            if limit:
+                all_transactions = all_transactions[:limit]
+            
+            return {
+                "user_id": user_id,
+                "transactions": all_transactions,
+                "transaction_count": len(all_transactions),
+                "account_count": len(accounts)
+            }
+    
+    except Exception as e:
+        print(f"❌ Error getting trade history: {e}")
+        return {"error": str(e), "user_id": user_id}
+
+
+@register_tool("analyze_portfolio_performance")
+async def analyze_portfolio_performance(user_id: str, user_secret: str) -> Dict[str, Any]:
+    """
+    Analyze portfolio performance including returns, risk metrics, and recommendations.
+    Use when user asks about portfolio performance, returns, or investment analysis.
+    """
+    try:
+        print(f"📊 Analyzing portfolio performance for user {user_id}...")
+        
+        # Get portfolio summary
+        portfolio = await snaptrade_client.get_portfolio_summary(user_id, user_secret)
+        positions = portfolio.get("positions", [])
+        
+        if not positions:
+            return {
+                "user_id": user_id,
+                "analysis": {
+                    "message": "No positions found in portfolio",
+                    "total_equity": portfolio.get("total_equity", 0)
+                }
+            }
+        
+        # Calculate performance metrics
+        total_cost_basis = sum(pos.get("cost_basis", 0) for pos in positions)
+        total_market_value = sum(pos.get("market_value", 0) for pos in positions)
+        total_unrealized_pl = sum(pos.get("unrealized_pl", 0) for pos in positions)
+        
+        # Calculate portfolio-level metrics
+        portfolio_return = (total_unrealized_pl / total_cost_basis * 100) if total_cost_basis > 0 else 0
+        
+        # Analyze individual positions
+        position_analysis = []
+        for position in positions:
+            symbol = position.get("symbol")
+            unrealized_pl_pct = position.get("unrealized_pl_percent", 0)
+            market_value = position.get("market_value", 0)
+            
+            # Get current market data for additional analysis
+            try:
+                current_price = await fd_client.get_quote(symbol)
+                position["current_price"] = current_price.get("price")
+                position["price_change"] = current_price.get("change_percent", 0)
+            except:
+                pass
+            
+            position_analysis.append({
+                "symbol": symbol,
+                "name": position.get("name"),
+                "shares": position.get("shares"),
+                "market_value": market_value,
+                "unrealized_pl": position.get("unrealized_pl", 0),
+                "unrealized_pl_percent": unrealized_pl_pct,
+                "weight": (market_value / total_market_value * 100) if total_market_value > 0 else 0
+            })
+        
+        # Sort by performance (best to worst)
+        position_analysis.sort(key=lambda x: x["unrealized_pl_percent"], reverse=True)
+        
+        # Generate recommendations
+        recommendations = []
+        if portfolio_return < -10:
+            recommendations.append("Consider rebalancing - portfolio is down significantly")
+        elif portfolio_return > 20:
+            recommendations.append("Strong performance - consider taking some profits")
+        
+        # Check for concentration risk
+        if len(positions) < 5:
+            recommendations.append("Consider diversifying - portfolio has few positions")
+        
+        # Check for high volatility positions
+        volatile_positions = [pos for pos in position_analysis if abs(pos["unrealized_pl_percent"]) > 15]
+        if volatile_positions:
+            recommendations.append(f"Monitor {len(volatile_positions)} high-volatility positions")
+        
+        return {
+            "user_id": user_id,
+            "analysis": {
+                "total_equity": portfolio.get("total_equity", 0),
+                "total_cost_basis": total_cost_basis,
+                "total_market_value": total_market_value,
+                "total_unrealized_pl": total_unrealized_pl,
+                "portfolio_return_percent": portfolio_return,
+                "position_count": len(positions),
+                "best_performer": position_analysis[0] if position_analysis else None,
+                "worst_performer": position_analysis[-1] if position_analysis else None,
+                "recommendations": recommendations,
+                "positions": position_analysis
+            }
+        }
+    
+    except Exception as e:
+        print(f"❌ Error analyzing portfolio performance: {e}")
+        return {"error": str(e), "user_id": user_id}
+
+
+@register_tool("get_account_balances")
+async def get_account_balances(user_id: str, user_secret: str, account_id: str = None) -> Dict[str, Any]:
+    """
+    Get account balances including cash, buying power, and equity.
+    Use when user asks about their account balance, cash available, or buying power.
+    """
+    try:
+        print(f"💰 Getting account balances for user {user_id}...")
+        
+        if account_id:
+            # Get balances for specific account
+            balances = await snaptrade_client.get_account_balances(user_id, user_secret, account_id)
+            return {
+                "user_id": user_id,
+                "account_id": account_id,
+                "balances": balances
+            }
+        else:
+            # Get all accounts and their balances
+            accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
+            all_balances = []
+            total_cash = 0
+            total_buying_power = 0
+            total_equity = 0
+            
+            for account in accounts:
+                balances = await snaptrade_client.get_account_balances(user_id, user_secret, account["id"])
+                balances["account_name"] = account["name"]
+                balances["account_id"] = account["id"]
+                all_balances.append(balances)
+                
+                total_cash += balances.get("cash", 0)
+                total_buying_power += balances.get("buying_power", 0)
+                total_equity += balances.get("total_equity", 0)
+            
+            return {
+                "user_id": user_id,
+                "accounts": all_balances,
+                "totals": {
+                    "total_cash": total_cash,
+                    "total_buying_power": total_buying_power,
+                    "total_equity": total_equity
+                },
+                "account_count": len(accounts)
+            }
+    
+    except Exception as e:
+        print(f"❌ Error getting account balances: {e}")
+        return {"error": str(e), "user_id": user_id}
+
+
+# Import FIRE advisor tools
+from .fire_tools import roast_portfolio, calculate_fire, negotiate_access

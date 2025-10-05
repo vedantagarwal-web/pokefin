@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SnapTrade Connection Test - Orthogonal</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1a1a1a;
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .container {
+            background: #222;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #00d4aa;
+            margin-bottom: 30px;
+        }
+        .test-button {
+            background: #00d4aa;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px;
+            transition: background 0.3s;
+        }
+        .test-button:hover {
+            background: #00b894;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            background: #333;
+            border-left: 4px solid #00d4aa;
+        }
+        .error {
+            border-left-color: #e74c3c;
+            background: #2d1b1b;
+        }
+        .success {
+            border-left-color: #27ae60;
+            background: #1b2d1b;
+        }
+        .url-display {
+            word-break: break-all;
+            background: #444;
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .instructions {
+            text-align: left;
+            margin: 20px 0;
+            padding: 20px;
+            background: #333;
+            border-radius: 8px;
+        }
+        .instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔗 SnapTrade Connection Test</h1>
+        <p>Test the SnapTrade brokerage connection integration for Orthogonal</p>
+        
+        <button class="test-button" onclick="testSnapTradeConnection()">
+            🚀 Test SnapTrade Connection
+        </button>
+        
+        <button class="test-button" onclick="clearResults()">
+            🧹 Clear Results
+        </button>
+        
+        <div id="result" class="result" style="display: none;"></div>
+        
+        <div class="instructions">
+            <h3>📋 How to Test:</h3>
+            <ol>
+                <li>Click "Test SnapTrade Connection" to generate a fresh connection URL</li>
+                <li>Click the generated URL to open SnapTrade's connection portal</li>
+                <li>Select your brokerage (Robinhood, TD Ameritrade, etc.)</li>
+                <li>Log in to your brokerage account</li>
+                <li>Authorize access to your account data</li>
+                <li>You'll be redirected back to complete the connection</li>
+                <li><strong>Note:</strong> Connection links expire in 5 minutes</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        async function testSnapTradeConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'block';
+            resultDiv.className = 'result';
+            resultDiv.innerHTML = '<p>🔄 Generating SnapTrade connection URL...</p>';
+            
+            try {
+                const response = await fetch('http://localhost:8788/api/snaptrade/connect');
+                const data = await response.json();
+                
+                if (data.success) {
+                    resultDiv.className = 'result success';
+                    resultDiv.innerHTML = `
+                        <h4>✅ Success! SnapTrade Connection URL Generated</h4>
+                        <p><strong>User ID:</strong> ${data.user_id}</p>
+                        <p><strong>Expires:</strong> ${data.expires_in}</p>
+                        <p><strong>Mock Mode:</strong> ${data.mock ? 'Yes' : 'No'}</p>
+                        <div class="url-display">
+                            <strong>Connection URL:</strong><br>
+                            <a href="${data.portal_url}" target="_blank" style="color: #00d4aa;">
+                                ${data.portal_url}
+                            </a>
+                        </div>
+                        <p><strong>Next Steps:</strong></p>
+                        <ol>
+                            <li>Click the URL above to open SnapTrade's connection portal</li>
+                            <li>Select your brokerage and complete the authorization</li>
+                            <li>You'll be redirected back to complete the connection</li>
+                        </ol>
+                    `;
+                } else {
+                    resultDiv.className = 'result error';
+                    resultDiv.innerHTML = `
+                        <h4>❌ Error Generating Connection URL</h4>
+                        <p><strong>Error:</strong> ${data.error}</p>
+                        <p><strong>Possible Solutions:</strong></p>
+                        <ul>
+                            <li>Check if SnapTrade credentials are configured correctly</li>
+                            <li>Verify network connectivity</li>
+                            <li>Try again in a few moments</li>
+                        </ul>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `
+                    <h4>❌ Network Error</h4>
+                    <p><strong>Error:</strong> ${error.message}</p>
+                    <p><strong>Possible Solutions:</strong></p>
+                    <ul>
+                        <li>Ensure the backend server is running on port 8788</li>
+                        <li>Check your network connection</li>
+                        <li>Verify CORS settings</li>
+                    </ul>
+                `;
+            }
+        }
+        
+        function clearResults() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.style.display = 'none';
+            resultDiv.innerHTML = '';
+        }
+    </script>
+</body>
+</html>
