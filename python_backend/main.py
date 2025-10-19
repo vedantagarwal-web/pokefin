@@ -16,7 +16,8 @@ from pydantic import BaseModel
 from agents.system import AlphaWealthSystem
 from services.session_manager import SessionManager
 from services.robinhood_client import RobinhoodClient
-from services.snaptrade_client import SnapTradeClient
+# SnapTrade removed - using mock portfolio for recommendations
+# from services.snaptrade_client import SnapTradeClient
 from services.supabase_client import supabase_client
 
 # Load environment variables
@@ -26,12 +27,12 @@ load_dotenv()
 alpha_system = None
 session_manager = None
 robinhood_client = None
-snaptrade_client = None
+# snaptrade_client = None  # Removed
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
-    global alpha_system, session_manager, robinhood_client, snaptrade_client
+    global alpha_system, session_manager, robinhood_client  # snaptrade_client removed
     
     print("🚀 Starting AlphaWealth...")
     
@@ -41,7 +42,7 @@ async def lifespan(app: FastAPI):
     
     # Initialize clients
     robinhood_client = RobinhoodClient()
-    snaptrade_client = SnapTradeClient()
+    # snaptrade_client = SnapTradeClient()  # Removed - using mock portfolio
     
     # Check Supabase client
     if supabase_client.is_available():
@@ -102,342 +103,14 @@ async def root():
         "message": "The world's best AI financial wealth manager"
     }
 
-# SnapTrade Integration Endpoints
-@app.get("/api/snaptrade/connect")
-async def snaptrade_connect():
-    """Generate SnapTrade connection portal URL"""
-    try:
-        import uuid
-        
-        # Create a fresh user session each time (links expire in 5 minutes)
-        user_id = f"pokefin_user_{uuid.uuid4().hex[:12]}"
-        redirect_uri = "http://localhost:8787/callback"
-        
-        # Create a new user for this session
-        user_data = await snaptrade_client.create_user(user_id)
-        
-        # Get connection portal URL from SnapTrade
-        portal_data = await snaptrade_client.get_connection_portal_url(
-            user_id=user_data.get("userId", user_id),
-            user_secret=user_data.get("userSecret"),
-            redirect_uri=redirect_uri
-        )
-        
-        return {
-            "success": True,
-            "portal_url": portal_data.get("redirect_url", "https://app.snaptrade.com/connect"),
-            "user_id": user_data.get("userId", user_id),
-            "user_secret": user_data.get("userSecret"),
-            "mock": portal_data.get("mock", True),
-            "expires_in": "5 minutes",
-            "message": portal_data.get("message"),
-            "credentials_issue": portal_data.get("credentials_issue", False),
-            "error": portal_data.get("error")
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+# SnapTrade Integration Endpoints - REMOVED
+# All SnapTrade endpoints have been removed.
+# Portfolio recommendations now use the mock portfolio system.
+# See SNAPTRADE_REMOVED.md for details.
 
-# OAuth2 Robinhood Integration Endpoints (Legacy - no longer used)
-@app.get("/api/robinhood/auth")
-async def robinhood_auth():
-    """Generate Robinhood OAuth2 authorization URL - DEPRECATED"""
-    try:
-        auth_data = robinhood_client.get_authorization_url()
-        return {
-            "success": True,
-            "authorization_url": auth_data["authorization_url"],
-            "state": auth_data["state"],
-            "deprecated": True,
-            "message": "Robinhood OAuth2 is deprecated. Use SnapTrade instead."
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.post("/api/robinhood/callback")
-async def robinhood_callback(request: Dict[str, Any]):
-    """Handle OAuth2 callback from Robinhood"""
-    try:
-        code = request.get("code")
-        if not code:
-            raise HTTPException(status_code=400, detail="Authorization code required")
-        
-        # Exchange code for access token
-        token_result = await robinhood_client.exchange_code_for_token(code)
-        
-        if token_result["success"]:
-            return {
-                "success": True,
-                "access_token": token_result["access_token"],
-                "message": "Successfully connected to Robinhood"
-            }
-        else:
-            return {
-                "success": False,
-                "error": token_result["error"]
-            }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.get("/api/robinhood/accounts")
-async def robinhood_accounts(access_token: str):
-    """Get Robinhood accounts"""
-    try:
-        result = await robinhood_client.get_accounts(access_token)
-        return result
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.get("/api/robinhood/positions")
-async def robinhood_positions(access_token: str, account_id: Optional[str] = None):
-    """Get Robinhood positions"""
-    try:
-        result = await robinhood_client.get_positions(access_token, account_id)
-        return result
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.post("/api/snaptrade/callback")
-async def snaptrade_callback(request: Request):
-    """Handle SnapTrade callback for brokerage connection"""
-    try:
-        # Parse query parameters from the callback URL
-        query_params = dict(request.query_params)
-        
-        # Get user credentials from query params or request body
-        user_id = query_params.get("userId") or query_params.get("user_id")
-        user_secret = query_params.get("userSecret") or query_params.get("user_secret")
-        
-        # Check for various success indicators
-        authorization_id = query_params.get("authorizationId")
-        status = query_params.get("status", "unknown")
-        success = query_params.get("success")
-        error = query_params.get("error")
-        
-        # SnapTrade may redirect without explicit success params for successful connections
-        # If no error is present and we have a callback, consider it successful
-        if authorization_id or (not error and status != "error"):
-            # Verify connection by checking if user now has accounts
-            if user_id and user_secret:
-                try:
-                    accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
-                    has_real_accounts = accounts and len(accounts) > 0 and not (len(accounts) == 1 and accounts[0].get('id') == 'mock_account_1')
-                    
-                    return {
-                        "success": True,
-                        "authorization_id": authorization_id or "connected",
-                        "status": status,
-                        "message": "SnapTrade connection successful",
-                        "user_id": user_id,
-                        "user_secret": user_secret,
-                        "accounts_found": has_real_accounts,
-                        "account_count": len(accounts) if accounts else 0,
-                        "query_params": query_params
-                    }
-                except Exception as e:
-                    print(f"❌ Error verifying accounts after callback: {e}")
-            
-            return {
-                "success": True,
-                "authorization_id": authorization_id or "connected",
-                "status": status,
-                "message": "SnapTrade connection successful",
-                "query_params": query_params
-            }
-        elif error:
-            return {
-                "success": False,
-                "error": f"SnapTrade error: {error}",
-                "query_params": query_params
-            }
-        else:
-            # Default to success if we get a callback without explicit error
-            return {
-                "success": True,
-                "authorization_id": "connected",
-                "status": "completed",
-                "message": "SnapTrade connection completed",
-                "query_params": query_params
-            }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.post("/api/snaptrade/register")
-async def snaptrade_register_user(request: Dict[str, Any]):
-    """Register a new SnapTrade user"""
-    try:
-        user_id = request.get("userId")
-        if not user_id:
-            raise HTTPException(status_code=400, detail="userId is required")
-        
-        result = await snaptrade_client.create_user(user_id)
-        
-        if result.get("mock"):
-            return {
-                "success": False,
-                "error": "SnapTrade is in mock mode. Please check credentials.",
-                "mock": True
-            }
-        
-        return {
-            "success": True,
-            "userId": result["userId"],
-            "userSecret": result["userSecret"]
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.post("/api/snaptrade/portal")
-async def snaptrade_connection_portal(request: Dict[str, Any]):
-    """Generate SnapTrade connection portal URL"""
-    try:
-        user_id = request.get("userId")
-        user_secret = request.get("userSecret")
-        
-        if not user_id or not user_secret:
-            raise HTTPException(status_code=400, detail="userId and userSecret are required")
-        
-        redirect_uri = "http://localhost:8787/callback"
-        result = await snaptrade_client.get_connection_portal_url(user_id, user_secret, redirect_uri)
-        
-        if result.get("mock"):
-            return {
-                "success": False,
-                "error": "SnapTrade is in mock mode. Please check credentials.",
-                "mock": True
-            }
-        
-        return {
-            "success": True,
-            "url": result["redirect_url"]
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.get("/api/snaptrade/debug/{user_id}/{user_secret}")
-async def debug_snaptrade_connection(user_id: str, user_secret: str):
-    """Debug SnapTrade connection and accounts"""
-    try:
-        from datetime import datetime
-        
-        # Test basic connection
-        result = {
-            "user_id": user_id,
-            "user_secret": user_secret[:10] + "...",
-            "timestamp": str(datetime.now()),
-            "tests": {}
-        }
-        
-        # Test 1: Get accounts
-        try:
-            accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
-            result["tests"]["get_accounts"] = {
-                "success": True,
-                "account_count": len(accounts) if accounts else 0,
-                "accounts": accounts
-            }
-        except Exception as e:
-            result["tests"]["get_accounts"] = {
-                "success": False,
-                "error": str(e)
-            }
-        
-        return result
-        
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
-
-@app.post("/api/snaptrade/accounts")
-async def snaptrade_get_accounts(request: Dict[str, Any]):
-    """Get SnapTrade user accounts"""
-    try:
-        user_id = request.get("userId")
-        user_secret = request.get("userSecret")
-        
-        if not user_id or not user_secret:
-            raise HTTPException(status_code=400, detail="userId and userSecret are required")
-        
-        accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
-        
-        return {
-            "success": True,
-            "accounts": accounts
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "accounts": []
-        }
-
-@app.post("/api/snaptrade/connections")
-async def snaptrade_list_connections(request: Dict[str, Any]):
-    """List all SnapTrade connections for a user"""
-    try:
-        user_id = request.get("userId")
-        user_secret = request.get("userSecret")
-        
-        if not user_id or not user_secret:
-            raise HTTPException(status_code=400, detail="userId and userSecret are required")
-        
-        connections = await snaptrade_client.list_connections(user_id, user_secret)
-        
-        return {
-            "success": True,
-            "connections": connections
-        }
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e),
-            "connections": []
-        }
-
-@app.post("/api/snaptrade/connections/delete")
-async def snaptrade_delete_connection(request: Dict[str, Any]):
-    """Delete a SnapTrade connection"""
-    try:
-        user_id = request.get("userId")
-        user_secret = request.get("userSecret")
-        authorization_id = request.get("authorizationId")
-        
-        if not user_id or not user_secret or not authorization_id:
-            raise HTTPException(status_code=400, detail="userId, userSecret, and authorizationId are required")
-        
-        result = await snaptrade_client.delete_connection(user_id, user_secret, authorization_id)
-        
-        return result
-    except Exception as e:
-        return {
-            "success": False,
-            "error": str(e)
-        }
+# OAuth2 Robinhood Integration Endpoints (Legacy - no longer publicly available)
+# Note: Robinhood no longer provides public OAuth2 API access
+# SnapTrade endpoints have been removed - see SNAPTRADE_REMOVED.md
 
 
 @app.get("/api/robinhood/portfolio")

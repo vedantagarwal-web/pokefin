@@ -12,11 +12,11 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from .registry import register_tool
-from services.snaptrade_client import SnapTradeClient
+# from services.snaptrade_client import SnapTradeClient  # Removed - using mock portfolio
 from services.robinhood_client import RobinhoodClient
 
 # Initialize clients
-snaptrade_client = SnapTradeClient()
+# snaptrade_client = SnapTradeClient()  # Removed
 robinhood_client = RobinhoodClient()
 
 @register_tool("roast_portfolio")
@@ -714,12 +714,19 @@ async def connect_brokerage(
     🏦 BROKERAGE CONNECTION: Connect user's Robinhood or other brokerage account
     via SnapTrade for real portfolio data analysis.
     """
+    # SnapTrade removed - this tool is disabled
+    return {
+        "success": False,
+        "error": "SnapTrade integration has been removed from the system",
+        "message": "Use the mock portfolio feature for portfolio recommendations"
+    }
+    
     try:
         if not user_id:
             user_id = f"user_{random.randint(100000, 999999)}"
         
         # Create SnapTrade user
-        user_result = await snaptrade_client.create_user(user_id)
+        # user_result = await snaptrade_client.create_user(user_id)
         
         if user_result.get("error"):
             return {
@@ -775,9 +782,16 @@ async def get_real_portfolio(
     📊 REAL PORTFOLIO DATA: Fetch user's actual portfolio from connected brokerage
     for authentic portfolio roasting and FIRE calculations.
     """
+    # SnapTrade removed - this tool is disabled
+    return {
+        "success": False,
+        "error": "SnapTrade integration has been removed from the system",
+        "message": "Use the mock portfolio feature for portfolio analysis"
+    }
+    
     try:
         # Get user accounts
-        accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
+        # accounts = await snaptrade_client.get_user_accounts(user_id, user_secret)
         
         if not accounts:
             return {

@@ -18,7 +18,7 @@ from services.financial_datasets_client import FinancialDatasetsClient
 from services.exa_client import ExaClient
 from services.chart_service import ChartService
 from services.screener_service import ScreenerService
-from services.snaptrade_client import SnapTradeClient
+# SnapTrade removed - use mock portfolio for recommendations
 from agents.portfolio_debate_coordinator import PortfolioDebateCoordinator
 
 # Initialize clients (after load_dotenv)
@@ -26,7 +26,7 @@ fd_client = FinancialDatasetsClient()
 exa_client = ExaClient()
 chart_service = ChartService()
 screener_service = ScreenerService()
-snaptrade_client = SnapTradeClient()
+# snaptrade_client removed
 
 @register_tool("get_stock_price")
 async def get_stock_price(
@@ -2197,11 +2197,13 @@ async def get_earnings_highlights(ticker: str) -> Dict[str, Any]:
 
 
 # ============================================================================
-# PORTFOLIO ANALYSIS TOOLS (SnapTrade Integration)
+# PORTFOLIO ANALYSIS TOOLS (SnapTrade Integration) - DISABLED
 # ============================================================================
+# SnapTrade removed - using mock portfolio for portfolio recommendations
+# See analyze_portfolio_recommendations tool below
 
-@register_tool("get_portfolio_summary")
-async def get_portfolio_summary(user_id: str, user_secret: str) -> Dict[str, Any]:
+# @register_tool("get_portfolio_summary")
+async def get_portfolio_summary_DISABLED(user_id: str, user_secret: str) -> Dict[str, Any]:
     """
     Get comprehensive portfolio summary including positions, balances, and performance.
     Use when user asks about their portfolio, holdings, or account balance.
@@ -2230,8 +2232,8 @@ async def get_portfolio_summary(user_id: str, user_secret: str) -> Dict[str, Any
         return {"error": str(e), "user_id": user_id}
 
 
-@register_tool("get_account_positions")
-async def get_account_positions(user_id: str, user_secret: str, account_id: str = None) -> Dict[str, Any]:
+# @register_tool("get_account_positions")
+async def get_account_positions_DISABLED(user_id: str, user_secret: str, account_id: str = None) -> Dict[str, Any]:
     """
     Get detailed positions for a specific account or all accounts.
     Use when user asks about their holdings, positions, or specific stocks they own.
@@ -2272,8 +2274,8 @@ async def get_account_positions(user_id: str, user_secret: str, account_id: str 
         return {"error": str(e), "user_id": user_id}
 
 
-@register_tool("get_trade_history")
-async def get_trade_history(user_id: str, user_secret: str, account_id: str = None, limit: int = 50) -> Dict[str, Any]:
+# @register_tool("get_trade_history")
+async def get_trade_history_DISABLED(user_id: str, user_secret: str, account_id: str = None, limit: int = 50) -> Dict[str, Any]:
     """
     Get transaction history for a specific account or all accounts.
     Use when user asks about their trading history, past trades, or transaction records.
@@ -2322,8 +2324,8 @@ async def get_trade_history(user_id: str, user_secret: str, account_id: str = No
         return {"error": str(e), "user_id": user_id}
 
 
-@register_tool("analyze_portfolio_performance")
-async def analyze_portfolio_performance(user_id: str, user_secret: str) -> Dict[str, Any]:
+# @register_tool("analyze_portfolio_performance")
+async def analyze_portfolio_performance_DISABLED(user_id: str, user_secret: str) -> Dict[str, Any]:
     """
     Analyze portfolio performance including returns, risk metrics, and recommendations.
     Use when user asks about portfolio performance, returns, or investment analysis.
@@ -2417,8 +2419,8 @@ async def analyze_portfolio_performance(user_id: str, user_secret: str) -> Dict[
         return {"error": str(e), "user_id": user_id}
 
 
-@register_tool("get_account_balances")
-async def get_account_balances(user_id: str, user_secret: str, account_id: str = None) -> Dict[str, Any]:
+# @register_tool("get_account_balances")
+async def get_account_balances_DISABLED(user_id: str, user_secret: str, account_id: str = None) -> Dict[str, Any]:
     """
     Get account balances including cash, buying power, and equity.
     Use when user asks about their account balance, cash available, or buying power.
