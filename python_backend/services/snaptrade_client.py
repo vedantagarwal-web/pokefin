@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 
 # Try to import SnapTrade SDK
 try:
-    import snaptrade_client as snaptrade
+    import snaptrade
     SNAPTRADE_AVAILABLE = True
 except ImportError:
     SNAPTRADE_AVAILABLE = False

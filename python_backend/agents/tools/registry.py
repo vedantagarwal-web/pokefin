@@ -1151,6 +1151,41 @@ TOOL_DEFINITIONS = [
                 "required": ["user_id", "user_secret"]
             }
         }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "analyze_portfolio_recommendations",
+            "description": "🎯 PORTFOLIO-ALIGNED RECOMMENDATIONS: Analyze user's portfolio and recommend stocks/sectors that align with their holdings or provide diversification. Runs multi-stage debate (Bull vs Bear → Sector A vs Sector B → Stock X vs Stock Y), projects returns with new allocation, and suggests dollar-cost averaging strategy. Use when user asks 'What should I add to my portfolio?', 'What should I invest in next?', or 'Recommend a stock for my portfolio'.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "portfolio_data": {
+                        "type": "object",
+                        "description": "Portfolio holdings with ticker:percentage pairs (e.g., {'TSLA': 45.0, 'AAPL': 30.0}). Optional - uses mock portfolio if not provided"
+                    },
+                    "preference": {
+                        "type": "string",
+                        "enum": ["diversification", "complementary", "both"],
+                        "description": "User preference: 'diversification' for stability, 'complementary' to strengthen current themes, 'both' to debate strategies",
+                        "default": "both"
+                    },
+                    "risk_tolerance": {
+                        "type": "string",
+                        "enum": ["conservative", "moderate", "aggressive"],
+                        "description": "Investment risk tolerance level",
+                        "default": "moderate"
+                    },
+                    "mode": {
+                        "type": "string",
+                        "enum": ["quick", "standard", "deep"],
+                        "description": "Analysis depth: 'quick' (30s), 'standard' (60s, recommended), 'deep' (3min)",
+                        "default": "standard"
+                    }
+                },
+                "required": []
+            }
+        }
     }
 ]
 

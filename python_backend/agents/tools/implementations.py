@@ -19,6 +19,7 @@ from services.exa_client import ExaClient
 from services.chart_service import ChartService
 from services.screener_service import ScreenerService
 from services.snaptrade_client import SnapTradeClient
+from agents.portfolio_debate_coordinator import PortfolioDebateCoordinator
 
 # Initialize clients (after load_dotenv)
 fd_client = FinancialDatasetsClient()
@@ -2469,3 +2470,61 @@ async def get_account_balances(user_id: str, user_secret: str, account_id: str =
 
 # Import FIRE advisor tools
 from .fire_tools import roast_portfolio, calculate_fire, negotiate_access
+
+
+@register_tool("analyze_portfolio_recommendations")
+async def analyze_portfolio_recommendations(
+    portfolio_data: Dict = None,
+    preference: str = "both",
+    risk_tolerance: str = "moderate",
+    mode: str = "standard"
+) -> Dict[str, Any]:
+    """
+    🎯 PORTFOLIO-ALIGNED RECOMMENDATIONS
+    
+    Analyze user's portfolio and recommend stocks/sectors that align with holdings
+    or provide diversification. Runs multi-stage debate (sector + stock), projects
+    returns, and suggests allocation with dollar-cost averaging.
+    
+    Args:
+        portfolio_data: {ticker: weight_pct} or None for mock portfolio
+        preference: "diversification", "complementary", "both"
+        risk_tolerance: "conservative", "moderate", "aggressive"  
+        mode: "quick", "standard", "deep"
+    
+    Returns:
+        Comprehensive recommendation with sector analysis, stock pick, projections
+    """
+    try:
+        print(f"\n🎯 Portfolio recommendation request received")
+        print(f"   Preference: {preference}")
+        print(f"   Risk tolerance: {risk_tolerance}")
+        print(f"   Mode: {mode}")
+        
+        # Initialize portfolio debate coordinator
+        from agents.research_config import get_config
+        config = get_config(mode)
+        coordinator = PortfolioDebateCoordinator(config)
+        
+        # Run full portfolio recommendation workflow
+        recommendation = await coordinator.analyze_portfolio_recommendations(
+            portfolio=portfolio_data,
+            preference=preference,
+            risk_tolerance=risk_tolerance,
+            mode=mode
+        )
+        
+        return {
+            "success": True,
+            "recommendation": recommendation
+        }
+    
+    except Exception as e:
+        print(f"❌ Error in portfolio recommendations: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            "success": False,
+            "error": str(e),
+            "message": "Could not generate portfolio recommendation"
+        }
